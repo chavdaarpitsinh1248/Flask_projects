@@ -1,0 +1,284 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 10px; /* add some space for small screens */
+}
+
+.container {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 1.6rem;
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+form input {
+    padding: 10px;
+    flex: 1;
+    min-width: 60%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.2s;
+}
+
+form input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
+}
+
+form button {
+    padding: 10px 14px;
+    border: none;
+    background: #4CAF50;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 8px;
+    margin-top: 8px;
+    transition: 0.3s;
+}
+
+form button:hover {
+    background: #43a047;
+    transform: scale(1.05);
+}
+.sun, .moon {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  border-radius: 50%;
+  transition: top 3s ease-in-out, left 3s ease-in-out, transform 3s ease-in-out;
+}
+
+/* Sun style */
+.sun {
+  background-color: yellow;
+  top: 50px;
+  left: 10px;
+}
+
+/* Moon style */
+.moon {
+  background-color: white;
+  top: 450px;
+  right: 10px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+li {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task-text {
+    flex: 1;
+    text-align: left;
+    font-size: 1rem;
+}
+
+.complete-btn, .delete-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-left: 6px;
+    margin-top: 6px;
+    transition: 0.3s;
+}
+
+.complete-btn {
+    background: #2196F3;
+    color: white;
+}
+
+.complete-btn:hover {
+    background: #1976D2;
+    transform: scale(1.05);
+}
+
+.delete-btn {
+    background: #f44336;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: #d32f2f;
+    transform: scale(1.05);
+}
+
+/* Dark mode styles */
+body.dark {
+    background: linear-gradient(135deg, #2c3e50, #4ca1af);
+    color: #f1f1f1;
+}
+body.dark h1 {
+    color: #ffeb3b; /* bright yellow */
+}
+
+body.dark .sun {
+  animation: sun-to-moon 3s forwards;
+}
+
+body.dark .moon {
+  animation: moon-to-sun 3s forwards;
+}
+
+body.dark .container {
+    background: #2e2e2e;
+    color: #f1f1f1;
+}
+
+body.dark input {
+    background: #444;
+    color: #fff;
+    border: 1px solid #666;
+}
+
+body.dark li {
+    background: #3a3a3a;
+}
+
+body.dark .complete-btn {
+    background: #1e88e5;
+}
+
+body.dark .delete-btn {
+    background: #e53935;
+}
+
+/* Dark mode toggle switch */
+.switch {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "🌙";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+    text-align: center;
+    line-height: 26px;
+    font-size: 16px;
+}
+
+/* When checked */
+input:checked + .slider {
+    background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+    content: "☀️";
+}
+
+#toggle-dark:hover {
+    background: #555;
+}
+
+
+/* 📱 Mobile adjustments */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+    }
+
+    form {
+        flex-direction: column;
+    }
+
+    form input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    form button {
+        width: 100%;
+        margin: 0;
+    }
+
+    li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .complete-btn, .delete-btn {
+        width: 100%;
+        margin: 5px 0 0 0;
+    }
+}
+@keyframes sun-to-moon {
+  0%   { top: 50px; left: 10px; transform: rotate(0deg); }
+  25%  { top: 150px; left: 150px; transform: rotate(90deg); }
+  50%  { top: 300px; left: 250px; transform: rotate(180deg); }
+  75%  { top: 400px; left: 150px; transform: rotate(270deg); }
+  100% { top: 450px; left: auto; right: 10px; transform: rotate(360deg); }
+}
+
+@keyframes moon-to-sun {
+  0%   { top: 450px; right: 10px; transform: rotate(0deg); }
+  25%  { top: 300px; right: 150px; transform: rotate(90deg); }
+  50%  { top: 150px; right: 250px; transform: rotate(180deg); }
+  75%  { top: 80px; right: 150px; transform: rotate(270deg); }
+  100% { top: 50px; left: 10px; transform: rotate(360deg); }
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Advanced Scientific Calculator</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="calculator">
+    <form method="POST" id="calcForm">
+        <input type="text" id="expression" name="expression" value="{{ expression }}" placeholder="0" autocomplete="off">
+
+        <!-- Shift toggle -->
+        <div style="margin-bottom:10px;">
+            <button type="button" onclick="toggleShift()" id="shiftBtn">Shift</button>
+        </div>
+
+        <!-- Scientific buttons -->
+        <div class="buttons scientific" id="scientificButtons">
+            <button type="button" onclick="append('sin(')">sin</button>
+            <button type="button" onclick="append('cos(')">cos</button>
+            <button type="button" onclick="append('tan(')">tan</button>
+            <button type="button" onclick="append('sqrt(')">√</button>
+            <button type="button" onclick="append('^')">^</button>
+            <button type="button" onclick="append('log(')">log</button>
+        </div>
+
+        <!-- Numeric and operator buttons -->
+        <div class="buttons numeric">
+            <!-- Row 1 -->
+            <button type="button" onclick="append('7')">7</button>
+            <button type="button" onclick="append('8')">8</button>
+            <button type="button" onclick="append('9')">9</button>
+            <button type="button" onclick="append('/')">/</button>
+
+            <!-- Row 2 -->
+            <button type="button" onclick="append('4')">4</button>
+            <button type="button" onclick="append('5')">5</button>
+            <button type="button" onclick="append('6')">6</button>
+            <button type="button" onclick="append('*')">*</button>
+
+            <!-- Row 3 -->
+            <button type="button" onclick="append('1')">1</button>
+            <button type="button" onclick="append('2')">2</button>
+            <button type="button" onclick="append('3')">3</button>
+            <button type="button" onclick="append('-')">-</button>
+
+            <!-- Row 4 -->
+            <button type="button" onclick="append('0')">0</button>
+            <button type="button" onclick="append('.')">.</button>
+            <button type="submit">=</button>
+            <button type="button" onclick="append('+')">+</button>
+
+            <!-- Row 5: parentheses + C -->
+            <button type="button" onclick="append('(')">(</button>
+            <button type="button" onclick="append(')')">)</button>
+            <button type="button" onclick="clearExpr()">C</button>
+        </div>
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="mb-4"><i class="bi bi-person-workspace"></i> My Posts</h1>
+  {% if posts %}
+    <div class="row">
+      {% for post in posts.items %}
+        <div class="col-md-6 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">
+                <a href="{{ url_for('post.view_post', post_id=post.id) }}">{{ post.title }}</a>
+              </h5>
+              <p class="card-text">{{ post.content }}</p>
+
+              <p class="text-muted small">
+                <i class="bi bi-hand-thumbs-up"></i> {{ post.likes|length }} likes
+              </p>
+
+              <p class="text-muted small">
+                <i class="bi bi-calendar-event"></i> {{ post.created_at.strftime("%Y-%m-%d %H:%M") }}
+                {% if post.updated_at and post.updated_at != post.created_at %}
+                  · <i class="bi bi-pencil"></i> Updated {{ post.updated_at.strftime("%Y-%m-%d %H:%M") }}
+                {% endif %}
+              </p>
+
+              <!-- Edit/Delete controls -->
+              <a href="{{ url_for('post.edit_post', post_id=post.id) }}" class="btn btn-sm btn-warning">
+                <i class="bi bi-pencil"></i> Edit
+              </a>
+              <form method="POST" action="{{ url_for('post.delete_post', post_id=post.id) }}"
+                    style="display:inline;">
+                <button type="submit" class="btn btn-sm btn-danger"
+                        onclick="return confirm('Delete this post?')">
+                  <i class="bi bi-trash"></i> Delete
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      <!-- Pagination controls -->
+<nav aria-label="Page navigation">
+  <ul class="pagination">
+    {% if posts.has_prev %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('post.my_posts', page=posts.prev_num) }}">Previous</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Previous</span></li>
+    {% endif %}
+
+    {% for p in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        {% if p == posts.page %}
+          <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+        {% else %}
+          <li class="page-item"><a class="page-link" href="{{ url_for('post.my_posts', page=p) }}">{{ p }}</a></li>
+        {% endif %}
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+      {% endif %}
+    {% endfor %}
+
+    {% if posts.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('post.my_posts', page=posts.next_num) }}">Next</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Next</span></li>
+    {% endif %}
+  </ul>
+</nav>
+    </div>
+  {% else %}
+    <p class="text-muted">You haven’t written any posts yet.</p>
+    <a href="{{ url_for('post.create_post') }}" class="btn btn-primary">
+      <i class="bi bi-plus-circle"></i> Write your first post
+    </a>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Edit Contact</h1>
+
+    <form method="POST" enctype="multipart/form-data"  class="needs-validation" novalidate>
+        <div class="mb-3">
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" id="name" name="name" value="{{ contact.name }}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" id="email" name="email" value="{{ contact.email }}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="message" class="form-label">Message:</label>
+            <textarea id="message" name="message" rows="5" class="form-control" required>{{ contact.message }}</textarea>
+        </div>
+
+         <div class="mb-3">
+            <label class="form-label">Current File:</label><br>
+            {% if contact.file_path %}
+                <a href="{{ url_for('uploaded_file', filename=contact.file_path) }}" target="_blank">{{ contact.file_path }}</a>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="remove_file" name="remove_file">
+                    <label class="form-check-label" for="remove_file">Remove this file</label>
+                </div>
+            {% else %}
+                <span class="text-muted">No file uploaded</span>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="file" class="form-label">Replace File (optional):</label>
+            <input type="file" id="file" name="file" class="form-control">
+        </div>
+
+
+        <button type="submit" class="btn btn-warning">Update</button>
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}

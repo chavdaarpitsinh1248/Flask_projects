@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title"><i class="bi bi-speedometer2"></i> Dashboard</h3>
+        <p class="text-muted">Welcome, <strong>{{ current_user.username }}</strong>!</p>
+
+        <a href="{{ url_for('post.create_post') }}" class="btn btn-primary mb-2">
+          <i class="bi bi-plus-circle"></i> Write a Blog
+        </a>
+        <a href="{{ url_for('post.my_posts') }}" class="btn btn-outline-info mb-2">
+          <i class="bi bi-person-workspace"></i> My Posts
+        </a>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary mb-2">
+          <i class="bi bi-journals"></i> View All Blogs
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

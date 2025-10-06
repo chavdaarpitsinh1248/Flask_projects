@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Admin Panel</h1>
+    <h4 class="mb-3">Contact Messages</h4>
+
+    <!-- Search + Page Size + Sort + Export Form -->
+    <form method="GET" action="{{ url_for('admin')}}" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <input type="text" name="q" class="form-control" placeholder="Search by name or email" value="{{ query or '' }}">
+        </div>
+
+        <div class="col-md-2">
+            <select name="per_page" class="form-select" onchange="this.form.submit()">
+                <option value="5" {% if per_page == 5 %}selected{% endif %}>5 per page</option>
+                <option value="10" {% if per_page == 10 %}selected{% endif %}>10 per page</option>
+                <option value="20" {% if per_page == 20 %}selected{% endif %}>20 per page</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <select name="sort" class="form-select" onchange="this.form.submit()">
+                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest First</option>
+                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name A-Z</option>
+                <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name Z-A</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+
+        <div class="col-md-3 text-end">
+            <a href="{{ url_for('export_csv') }}" class="btn btn-success">
+                <i class="bi bi-download"></i> Download CSV
+            </a>
+            {% if query %}
+                <a href="{{ url_for('admin', per_page=per_page, sort=sort) }}" class="btn btn-secondary ms-2">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if contacts.items %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Message</th>
+                    <th>File</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contact in contacts.items %}
+                <tr>
+                    <td>{{ contact.id }}</td>
+                    <td>{{ contact.name | highlight(query) }}</td>
+                    <td>{{ contact.email | highlight(query) }}</td>
+                    <td>
+    {% if contact.message|length > 50 %}
+        {{ contact.message[:50] | highlight(query) }}...
+        <a href="#" data-bs-toggle="modal" data-bs-target="#msgModal{{ contact.id }}">Read more</a>
+
+        <!-- Modal for full message -->
+        <div class="modal fade" id="msgModal{{ contact.id }}" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Message from {{ contact.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>{{ contact.message | highlight(query) }}</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    {% else %}
+        {{ contact.message | highlight(query)}}
+    {% endif %}
+</td>
+
+                    <td>
+    {% if contact.file_path %}
+        <div class="d-flex flex-column gap-1">
+            <a href="{{ url_for('uploaded_file', filename=contact.file_path) }}" 
+               target="_blank" 
+               class="btn btn-sm btn-info w-100">Download</a>
+            <a href="{{ url_for('delete_file', id=contact.id) }}" 
+               class="btn btn-sm btn-danger w-100"
+               onclick="return confirm('Delete this file?');">Delete</a>
+        </div>
+    {% else %}
+        <span class="text-muted">No file</span>
+    {% endif %}
+</td>
+
+<td>
+    <div class="d-flex flex-column gap-1">
+        <a href="{{ url_for('edit_contact', id=contact.id) }}" 
+           class="btn btn-sm btn-warning w-100">Edit</a>
+        <a href="{{ url_for('delete_contact', id=contact.id) }}" 
+           onclick="return confirm('Are you sure?');" 
+           class="btn btn-sm btn-danger w-100">Delete</a>
+    </div>
+</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mt-3">
+            {% if contacts.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('admin', page=contacts.prev_num, q=query, per_page=per_page, sort=sort) }}">Previous</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Previous</span></li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">Page {{ contacts.page }} of {{ contacts.pages }}</span>
+            </li>
+
+            {% if contacts.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('admin', page=contacts.next_num, q=query, per_page=per_page, sort=sort) }}">Next</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Next</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    {% else %}
+        <p class="text-center mt-4">No contact messages found.</p>
+    {% endif %}
+</div>
+{% endblock %}
