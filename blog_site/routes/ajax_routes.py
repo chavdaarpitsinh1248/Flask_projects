@@ -1,13 +1,14 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, url_for
 from flask_login import login_required, current_user
 from models import Post, Comment
 from extensions import db
+from utils.notifications import create_notification
 
 ajax_bp = Blueprint('ajax', __name__)
 
-#-------------
-#Comments AJAX
-#-------------
+# ------------------
+# Add Comment via AJAX
+# ------------------
 
 @ajax_bp.route('/post/<int:post_id>/ajax_comment', methods=['POST'])
 @login_required
@@ -15,6 +16,7 @@ def ajax_comment(post_id):
     data = request.get_json()
     content = data.get('content', '').strip()
     parent_id = data.get('parent_id')
+
     if not content:
         return jsonify({'success': False, 'error': 'Comment cannot be empty.'})
     
@@ -23,17 +25,31 @@ def ajax_comment(post_id):
     db.session.add(comment)
     db.session.commit()
 
+    print(f"DEBUG: AJAX Comment added for post_id={post.id} by user_id={current_user.id}")
+
+    # Create notification
+    if post.author and post.author.id != current_user.id:
+        notif = create_notification(
+            user=post.author,
+            message=f"{current_user.username} commented on your post '{post.title}'",
+            link=url_for('post.view_post', post_id=post.id)
+        )
+        print(f"DEBUG: AJAX Notification created: {notif.message}")
+
     return jsonify({
-    'success': True,
-    'comment_id': comment.id,  
-    'content': comment.content,
-    'username': current_user.username,
-    'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M'),
-    'parent_id': parent_id
-})
+        'success': True,
+        'comment_id': comment.id,
+        'content': comment.content,
+        'username': current_user.username,
+        'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M'),
+        'parent_id': parent_id
+    })
 
 
-#AJAX Edit Comment
+# ------------------
+# Edit Comment via AJAX
+# ------------------
+
 @ajax_bp.route('/comment/<int:comment_id>/ajax_edit', methods=['POST'])
 @login_required
 def ajax_edit_comment(comment_id):
@@ -49,13 +65,13 @@ def ajax_edit_comment(comment_id):
     comment.content = content
     db.session.commit()
 
-    return jsonify({
-        'success': True,
-        'content': comment.content,
-        'comment_id': comment.id
-    })
+    return jsonify({'success': True, 'content': comment.content, 'comment_id': comment.id})
 
-#AJAX Delete Comment
+
+# ------------------
+# Delete Comment via AJAX
+# ------------------
+
 @ajax_bp.route('/comment/<int:comment_id>/ajax_delete', methods=['POST'])
 @login_required
 def ajax_delete_comment(comment_id):
@@ -67,24 +83,3 @@ def ajax_delete_comment(comment_id):
     db.session.commit()
 
     return jsonify({'success': True, 'comment_id': comment_id})
-
-#-------------
-#Like/Unlike Post
-#-------------
-
-@ajax_bp.route('/like/<int:post_id>', methods=['POST'])
-@login_required
-def like_post(post_id):
-    post = Post.query.get_or_404(post_id)
-    if current_user in post.likes:
-        # Unlike
-        post.likes.remove(current_user)
-        db.session.commit()
-        liked=False
-
-    else:
-        # Like
-        post.likes.append(current_user)
-        db.session.commit()
-        liked=True
-    return jsonify({'liked': liked, 'total_likes': len(post.likes)})

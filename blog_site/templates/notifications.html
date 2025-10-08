@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Notifications</h1>
+
+{% if notifications %}
+<form method="POST" action="{{ url_for('notif.mark_all_read') }}">
+    <button type="submit" class="btn btn-sm btn-danger">Mark all as read</button>
+</form>
+
+<ul>
+    {% for n in notifications %}
+    <li>
+        <a href="{{ url_for('notif.mark_read', notif_id=n.id) }}">{{ n.message }}</a>
+        <small>({{ n.created_at.strftime('%Y-%m-%d %H:%M') }})</small>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No new notifications.</p>
+{% endif %}
+{% endblock %}
