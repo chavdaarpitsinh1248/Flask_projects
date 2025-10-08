@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, url_for
 from flask_login import login_required, current_user
-from models import Post, Comment
+from models import Post, Comment, Like
 from extensions import db
 from utils.notifications import create_notification
 
@@ -83,3 +83,41 @@ def ajax_delete_comment(comment_id):
     db.session.commit()
 
     return jsonify({'success': True, 'comment_id': comment_id})
+
+# ------------------
+# Like via AJAX
+# ------------------
+
+@ajax_bp.route('/post/<int:post_id>/ajax_like', methods=['POST'])
+@login_required
+def ajax_like(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    # Check if user already liked the post
+    existing_like = Like.query.filter_by(user_id=current_user.id, post_id=post.id).first()
+    liked = False
+
+    if existing_like:
+        # If already liked, remove like (toggle behavior)
+        db.session.delete(existing_like)
+    else:
+        # Add new like
+        like = Like(user_id=current_user.id, post_id=post.id)
+        db.session.add(like)
+        liked = True
+
+        # Notification for post author
+        if post.author and post.author.id != current_user.id:
+            create_notification(
+                user=post.author,
+                message=f"{current_user.username} liked your post '{post.title}'",
+                link=url_for('post.view_post', post_id=post.id)
+            )
+
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'liked': liked,
+        'like_count': post.likes.count()
+    })

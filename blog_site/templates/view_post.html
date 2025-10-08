@@ -2,73 +2,83 @@
 {% block content %}
 
 <!-- Post Card -->
-<div class="card mb-4">
+<div class="card mb-4 shadow-sm">
   <div class="card-body">
-    <h3>{{ post.title }}</h3>
-    <p>{{ post.content }}</p>
-    <p class="text-muted">
+    <h3 class="card-title">{{ post.title }}</h3>
+    <p class="card-text">{{ post.content }}</p>
+    <p class="text-muted small">
       By <a href="{{ url_for('main.user_profile', user_id=post.author.id) }}">{{ post.author.username }}</a>
-      · {{ post.created_at.strftime("%Y-%m-%d %H:%M") }}
+      · {{ moment(post.created_at).format("YYYY-MM-DD HH:mm") }}
       {% if post.updated_at and post.updated_at != post.created_at %}
-        · <i class="bi bi-pencil"></i> Updated {{ post.updated_at.strftime("%Y-%m-%d %H:%M") }}
+      · <i class="bi bi-pencil"></i> Updated {{ moment(post.updated_at).format("YYYY-MM-DD HH:mm") }}
       {% endif %}
     </p>
   </div>
 </div>
 
 <!-- Like Button -->
-<button id="like-btn" 
-        data-post-id="{{ post.id }}" 
-        data-csrf="{{ form.csrf_token._value() }}" 
-        class="btn btn-sm {% if current_user in post.likes %}btn-success{% else %}btn-outline-success{% endif %}">
-    <i class="bi bi-hand-thumbs-up"></i> (<span id="like-count">{{ post.likes|length }}</span>)
-</button>
+<div class="mb-3">
+  <button id="like-btn" data-post-id="{{ post.id }}"
+    class="btn btn-sm {% if liked_by_user %}btn-success{% else %}btn-outline-success{% endif %}">
+    <i class="bi bi-hand-thumbs-up"></i> {{ post.likes.count() }} likes
+  </button>
+</div>
 
 <!-- Comment Form -->
-<form id="comment-form" data-post-id="{{ post.id }}" data-csrf="{{ form.csrf_token._value() }}">
-    {{ form.hidden_tag() }}
-    <div class="mb-3">
+{% if current_user.is_authenticated %}
+<div class="card mb-4 shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title"><i class="bi bi-chat-left-text"></i> Add a Comment</h5>
+    <form id="comment-form" data-post-id="{{ post.id }}" data-csrf="{{ form.csrf_token._value() }}">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
         {{ form.content(class="form-control", rows=3, placeholder="Write your comment...") }}
-    </div>
-    {{ form.submit(class="btn btn-primary mt-2") }}
-</form>
+      </div>
+      {{ form.submit(class="btn btn-primary mt-2") }}
+    </form>
+  </div>
+</div>
+{% else %}
+<p><a href="{{ url_for('auth.login') }}">Login</a> to add a comment.</p>
+{% endif %}
 
 <!-- Comment List -->
+<h4 class="mb-3"><i class="bi bi-chat-dots"></i> Comments</h4>
+
 {% macro render_comment(comment, level=0) %}
 <li class="list-group-item ms-{{ level * 4 }}" id="comment-{{ comment.id }}">
   <strong>{{ comment.user.username }}</strong>:
   <span class="comment-content">{{ comment.content }}</span>
   <br>
-  <small class="text-muted">{{ comment.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+  <small class="text-muted">{{ moment(comment.created_at).format("YYYY-MM-DD HH:mm") }}</small>
 
   {% if current_user.is_authenticated %}
-    <div class="mt-1">
-      <button class="btn btn-sm btn-link reply-btn" data-id="{{ comment.id }}">Reply</button>
-      {% if comment.user == current_user %}
-        <button class="btn btn-sm btn-link edit-comment" data-id="{{ comment.id }}">Edit</button>
-        <button class="btn btn-sm btn-link text-danger delete-comment" data-id="{{ comment.id }}">Delete</button>
-      {% endif %}
-    </div>
+  <div class="mt-1">
+    <button class="btn btn-sm btn-link reply-btn" data-id="{{ comment.id }}">Reply</button>
+    {% if comment.user == current_user %}
+    <button class="btn btn-sm btn-link edit-comment" data-id="{{ comment.id }}">Edit</button>
+    <button class="btn btn-sm btn-link text-danger delete-comment" data-id="{{ comment.id }}">Delete</button>
+    {% endif %}
+  </div>
   {% endif %}
 
-  <!-- reply form container (valid inside li) -->
+  <!-- Reply form container -->
   <div class="reply-form-container" id="reply-form-{{ comment.id }}"></div>
 
   {% if comment.replies %}
-    <ul class="list-group mt-2">
-      {% for reply in comment.replies.order_by(Comment.created_at.asc()).all() %}
-        {{ render_comment(reply, level + 1) }}
-      {% endfor %}
-    </ul>
+  <ul class="list-group mt-2">
+    {% for reply in comment.replies.order_by(Comment.created_at.asc()).all() %}
+    {{ render_comment(reply, level + 1) }}
+    {% endfor %}
+  </ul>
   {% endif %}
 </li>
 {% endmacro %}
 
-<ul id="comment-list" class="list-group mb-3">
+<ul id="comment-list" class="list-group mb-4">
   {% for comment in comments %}
-    {{ render_comment(comment) }}
-    <!-- Reply form container belongs INSIDE the loop -->
-    <div class="reply-form-container" id="reply-form-{{ comment.id }}"></div>
+  {{ render_comment(comment) }}
+  <div class="reply-form-container" id="reply-form-{{ comment.id }}"></div>
   {% endfor %}
 </ul>
 

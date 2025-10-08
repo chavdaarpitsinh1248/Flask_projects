@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
-from models import Post, Comment
+from models import Post, Comment, Like
 from forms import PostForm, CommentForm
 from extensions import db
 from utils.notifications import create_notification
@@ -25,11 +25,26 @@ def create_post():
 
 
 @post_bp.route('/post/<int:post_id>')
+@login_required  # or optional, depending on your setup
 def view_post(post_id):
     post = Post.query.get_or_404(post_id)
-    form = CommentForm()
-    comments = post.comments.filter_by(parent_id=None).order_by(Comment.created_at.asc()).all()
-    return render_template('view_post.html', post=post, form=form, comments=comments)
+    comments = post.comments.order_by(Comment.created_at.asc()).all()
+
+    liked_by_user = False
+    if current_user.is_authenticated:
+        liked_by_user = post.likes.filter_by(user_id=current_user.id).first() is not None
+
+    comment_form = None
+    if current_user.is_authenticated:
+        comment_form = CommentForm()  # create the form instance
+
+    return render_template(
+        "view_post.html",
+        post=post,
+        comments=comments,
+        liked_by_user=liked_by_user,
+        form=comment_form
+    )
 
 
 @post_bp.route('/edit/<int:post_id>', methods=['GET', 'POST'])
@@ -109,4 +124,34 @@ def add_comment(post_id):
 
         flash('Comment added successfully!', 'success')
 
+    return redirect(url_for('post.view_post', post_id=post.id))
+
+# ------------------
+# Like Route
+# ------------------
+
+@post_bp.route('/like/<int:post_id>', methods=['POST'])
+@login_required
+def like_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    
+    # Prevent multiple likes
+    if Like.query.filter_by(user_id=current_user.id, post_id=post.id).first():
+        flash("You already liked this post!", "warning")
+        return redirect(url_for('post.view_post', post_id=post.id))
+    
+    # Create like
+    like = Like(user_id=current_user.id, post_id=post.id)
+    db.session.add(like)
+
+    # Create notification for post author if not yourself
+    if post.author and post.author.id != current_user.id:
+        create_notification(
+            user=post.author,
+            message=f"{current_user.username} liked your post '{post.title}'",
+            link=url_for('post.view_post', post_id=post.id)
+        )
+    
+    db.session.commit()
+    flash("Post liked!", "success")
     return redirect(url_for('post.view_post', post_id=post.id))
