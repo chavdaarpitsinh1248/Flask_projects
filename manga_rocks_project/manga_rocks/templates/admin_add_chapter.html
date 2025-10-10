@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Add Chapter{% endblock %}
+{% block content %}
+<h2>Add Chapter</h2>
+<form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag }}
+    <p>{{ form.manga_id.label }}<br>{{ form.manga_id() }}</p>
+    <p>{{ form.number.label }}<br>{{ form.number() }}</p>
+    <p>{{ form.title.label }}<br>{{ form.title(size=40) }}</p>
+    <p>{{ form.submit() }}</p>
+</form>
+{% endblock %}
