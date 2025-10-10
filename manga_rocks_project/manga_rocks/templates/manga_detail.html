@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ manga.title }}{% endblock %}
+{% block content %}
+<div class="manga-detail">
+    <h2>{{ manga.title }}</h2>
+    {% if manga.cover_image %}
+    <img src="{{ url_for('static', filename=manga.cover_image) }}" alt="{{ manga.title }}" height="250">
+    {% endif %}
+    <p><strong>Author:</strong> {{manga.author or "Unknown"}}</p>
+    <p>{{ manga.description }}</p>
+
+    <h3>Chapters</h3>
+    <ul>
+        {% for ch in chapters %}
+        <li><a href="{{ url_for('main.read_chapter', chapter_id=ch.id) }}">Chapter {{ ch.number }}{ if ch.title }: {{
+                ch.title }}{% endif %} </a></li>
+        {% else %}
+        <li>No chapters available.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
