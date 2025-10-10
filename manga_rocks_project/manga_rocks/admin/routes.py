@@ -84,4 +84,41 @@ def add_chapter():
         db.session.commit()
         flash("Chapter Added!", "success")
         return redirect(url_for("admin.admin_index"))
+
     return render_template("admin_add_chapter.html", form=form)
+
+
+@admin_bp.route("/upload_pages", methods=["GET", "POST"])
+@login_required
+@admin_required
+def upload_pages():
+    form = UploadPagesForm()
+    if form.validate_on_submit():
+        chapter = Chapter.query.get(form.chapter_id.data)
+        if not chapter:
+            flash("Invalid Chapter ID", "danger")
+            return redirect(url_for("admin.upload_pages"))
+        
+        files = request.files.getlist("pages")
+        if not files:
+            flash("No Files Seleccted!", "warning")
+            return redirect(url_for("admin.upload_pages"))
+        
+        for i, file in enumerate(files, start=1):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+            file.save(file_path)
+
+            page= Page(
+                image_path=f"uploads.{filename}",
+                page_number = i,
+                chapter_id = chapter.id,
+            )
+
+            db.session.add(page)
+
+        db.session.commit()
+        flash(f"{len(files)} pages uploaded!", "success")
+        return redirect(url_for("admin.admin_index"))
+    
+    return render_template("admin_upload_pages.html", form=form)
