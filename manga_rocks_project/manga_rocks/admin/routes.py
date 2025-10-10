@@ -27,3 +27,37 @@ def admin_required(func):
 def admin_index():
     mangas = Manga.query.all()
     return render_template("admin_index.html", mangas=mangas)
+
+@admin_bp.route("/add_manga", methods=["GET", "POST"])
+@login_required
+@admin_required
+def add_manga():
+    form = AddMangaForm()
+    form.genres.choices = [(g.id, g.name) for g in Genre.query.all()]
+
+    if form.validate_on_submit():
+        filename = None
+        if form.cover_image.data:
+            filename = secure_filename(form.cover_image.data.filename)
+            upload_path = os.path.join(current_app.conifg["UPLOAD_FOLDER"], filename)
+            form.cover_image.data.save(upload_path)
+
+        manga = Manga(
+            title = form.title.data,
+            author = form.author.data,
+            description = form.description.data,
+            cover_image= f"uploads.{filename}" if filename else None,
+        )
+        
+        for genre_id in form.genres.data:
+            genre = Genre.query.get(genre_id)
+            if genre:
+                manga.genres.append(genre)
+
+        
+        db.session.add(manga)
+        db.session.commit()
+        flash("Manga Added Successfully!", "success")
+        return redirect(url_for("admin.admin_index"))
+    
+    return render_template("admin_add_manga.html", form=form)
