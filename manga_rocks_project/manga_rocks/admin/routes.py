@@ -61,3 +61,27 @@ def add_manga():
         return redirect(url_for("admin.admin_index"))
     
     return render_template("admin_add_manga.html", form=form)
+
+
+@admin_bp.route("/add_chapter", methods=["GET", "POST"])
+@login_required
+@admin_required
+def add_chapter():
+    form = AddChapterForm()
+    if form.validate_on_submit():
+        manga = Manga.query.get(form.manga_id.data)
+        if not manga:
+            flash("Invalid Manga ID", "danger")
+            return redirect(url_for("admin.add_chapter"))
+        
+        chapter = Chapter(
+            number = form.number.data,
+            title = form.title.data,
+            manga_id = manga.id,
+        )
+
+        db.session.add(chapter)
+        db.session.commit()
+        flash("Chapter Added!", "success")
+        return redirect(url_for("admin.admin_index"))
+    return render_template("admin_add_chapter.html", form=form)
