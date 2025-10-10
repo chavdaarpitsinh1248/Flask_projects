@@ -21,4 +21,4 @@ class AddChapterForm(FlaskForm):
 class UploadPagesForm(FlaskForm):
     chapter_id = IntegerField("Chapter ID", validators=[DataRequired()])
     pages = FileField("Upload Pages (multiple)", render_kw={"multiple":True})
-    Submit = SubmitField("Upload Pages")
+    submit = SubmitField("Upload Pages")

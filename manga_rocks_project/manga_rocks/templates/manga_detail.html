@@ -12,8 +12,14 @@
     <h3>Chapters</h3>
     <ul>
         {% for ch in chapters %}
-        <li><a href="{{ url_for('main.read_chapter', chapter_id=ch.id) }}">Chapter {{ ch.number }}{ if ch.title }: {{
-                ch.title }}{% endif %} </a></li>
+        <li>
+            <a href="{{ url_for('main.read_chapter', chapter_id=ch.id) }}">
+                Chapter {{ ch.number }}
+                {% if ch.title %}
+                : {{ ch.title }}
+                {% endif %}
+            </a>
+        </li>
         {% else %}
         <li>No chapters available.</li>
         {% endfor %}

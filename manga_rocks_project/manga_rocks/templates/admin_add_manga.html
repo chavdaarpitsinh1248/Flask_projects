@@ -3,12 +3,12 @@
 {% block content %}
 <h2>Add Manga</h2>
 <form method="POST" enctype="multipart/form-data">
-    {{ form.hidden_tag }}
+    {{ form.hidden_tag() }}
     <p>{{ form.title.label }}<br>{{ form.title(size=40) }}</p>
     <p>{{ form.author.label }}<br>{{ form.author(size=40) }}</p>
     <p>{{ form.description.label }}<br>{{ form.description(rows=3, cols=50) }}</p>
     <p>{{ form.cover_image.label }}<br>{{ form.cover_image() }}</p>
-    <p>{{ form.genre.label }}<br>{{ form.genre(multipart=True, size=5) }}</p>
+    <p>{{ form.genres.label }}<br>{{ form.genres(multipart=True, size=5) }}</p>
     <p>{{ form.submit() }}</p>
 </form>
 {% endblock %}

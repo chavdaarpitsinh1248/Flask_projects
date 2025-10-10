@@ -39,14 +39,14 @@ def add_manga():
         filename = None
         if form.cover_image.data:
             filename = secure_filename(form.cover_image.data.filename)
-            upload_path = os.path.join(current_app.conifg["UPLOAD_FOLDER"], filename)
+            upload_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
             form.cover_image.data.save(upload_path)
 
         manga = Manga(
             title = form.title.data,
             author = form.author.data,
             description = form.description.data,
-            cover_image= f"uploads.{filename}" if filename else None,
+            cover_image= f"uploads/{filename}" if filename else None,
         )
         
         for genre_id in form.genres.data:
@@ -110,7 +110,7 @@ def upload_pages():
             file.save(file_path)
 
             page= Page(
-                image_path=f"uploads.{filename}",
+                image_path=f"uploads/{filename}",
                 page_number = i,
                 chapter_id = chapter.id,
             )

@@ -35,3 +35,26 @@ nav a {
     justify-content: space-between;
     margin: 10px 0;
 }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.pagination a {
+    text-decoration: none;
+    background: #f2f2f2;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+.pagination span {
+    font-weight: bold;
+}
+
+form {
+    margin-bottom: 15px;
+}

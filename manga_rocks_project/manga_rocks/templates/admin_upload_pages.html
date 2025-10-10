@@ -3,7 +3,7 @@
 {% block content %}
 <h2>Upload Pages</h2>
 <form method="POST" enctype="multipart/form-data">
-    {{ form.hidden_tag }}
+    {{ form.hidden_tag() }}
     <p>{{ form.chapter_id.label }}<br>{{ form.chapter_id() }}</p>
     <p>{{ form.pages.label }}<br>{{ form.pages() }}</p>
     <p>{{ form.submit() }}</p>
