@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ manga.tilte }} - Chapter {{ chapter.number}}{% endblock %}
+{% block content %}
+<div class="reader-header">
+    <h2>{{ manga.title }} - Chapter {{ chapter.number }}</h2>
+    <div class="reader-nav">
+        {% if prev_chapter %}
+        <a href="{{ url_for('main.read_chapter', chapter_id=prev_chapter.id) }}">⬅ Previous</a>
+        {% endif %}
+        <a href="{{ url_for('main.manga_detail', manga_id=manga.id) }}">📚 All Chapters</a>
+        {% if next_chapter %}
+        <a href="{{ url_for('main.read_chapter', chapter_id=next_chapter.id) }}">Next ➡</a>
+        {% endif %}
+    </div>
+</div>
+
+<hr>
+
+<div class="reader-pages">
+    {% for p in pages %}
+    <img src="{{ url_for('static', filename=p.image_path) }}" alt="Page {{ p.page_number }}" class="reader-page"
+        loading="lazy">
+    {% else %}
+    <p> No pages found for this chapter.</p>
+    {% endif %}
+</div>
+
+<hr>
+
+<div class="reader-nav bottom">
+    {% if prev_chapter %}
+    <a href="{{ url_for('main.read_chapter', chapter_id=prev_chapter.id) }}">⬅ Previous</a>
+    {% endif %}
+    {% if next_chapter %}
+    <a href="{{ url_for('main.read_chapter', chapter_id=next_chapter.id) }}">Next ➡</a>
+    {% endif %}
+</div>
+{% endblock %}
