@@ -12,3 +12,13 @@ class AddMangaForm(FlaskForm):
     genres = SelectMultipleField("Genres (Ctrl + Click to select multiple)", coerce=int)
     submit = SubmitField("Add Manga")
 
+class AddChapterForm(FlaskForm):
+    manga_id = IntegerField("Manga ID", validators=[DataRequired()])
+    number = IntegerField("Chapter Number", validators=[DataRequired()])
+    title = StringField("Chapter Title", validators=[Optional(), Length(max=150)])
+    submit = SubmitField("Add Chapter")
+
+class UploadPagesForm(FlaskForm):
+    chapter_id = IntegerField("Chapter ID", validators=[DataRequired()])
+    pages = FileField("Upload Pages (multiple)", render_kw={"multiple":True})
+    Submit = SubmitField("Upload Pages")
