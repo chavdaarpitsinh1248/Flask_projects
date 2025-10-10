@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Manga Rocks{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="{{ url_for('main.index')}}">Home</a>
+            <a href="{{ url_for('auth.login')}}">Login</a>
+            <a href="{{ url_for('admin.admin_index')}}">Admin</a>
+        </nav>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul class="flashes">
+        {% for category, msg in messages %}
+        <li class="{{ category }}">{{ msg }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    {% if current_user.is_authenticated %}
+    <p>Logged in as <strong>{{ current_user.username }}</strong> |
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </p>
+    {% else %}
+    <p><a href="{{ url_for('auth.login') }}">Login</a> |
+        <a href="{{ url_for('auth.register') }}">Register</a>
+    </p>
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+
+</html>

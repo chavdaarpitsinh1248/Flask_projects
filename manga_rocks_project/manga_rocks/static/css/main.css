@@ -1,0 +1,9 @@
+body {
+    font-family: system-ui, sans-serif;
+    margin: 24px;
+}
+
+nav a {
+    margin-right: 12px;
+    text-decoration: none;
+}
