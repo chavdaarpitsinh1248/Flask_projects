@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}All Manga{% endblock %}
+{% block content %}
+<h2>📚 Manga List</h2>
+<div class="manga-grid">
+    {% for m in mangas %}
+    <div class="manga-card">
+        <a href="{{ url_for('main.manga_detail', manga_id=m.id) }}">
+            {% if m.cover_image %}
+            <img src="{{ url_for('static', filename=m.cover_image) }}" alt="{{ m.title }}" loading="lazy">
+            {% else %}
+            <img src="{{ url_for('static', filename=default_cover.jpg) }}" alt="{{ m.title }}" loading="lazy">
+            {% endif %}
+            <h4>{{ m.title }}</h4>
+        </a>
+    </div>
+    {% else %}
+    <p>No manga added :(.</p>
+    {% endfor %}
+</div>
+{% endblock %}
