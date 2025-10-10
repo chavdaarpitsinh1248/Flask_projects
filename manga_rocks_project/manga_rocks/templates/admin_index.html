@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Admin DashBoard{% endblock %}
+{% block content %}
+<h2>Admin DashBoard</h2>
+<p><a href="{{ url_for('admin.add_manga') }}">➕ Add Manga</a></p>
+<p><a href="{{ url_for('admin.add_chapter') }}">📘 Add Chapter</a></p>
+<p><a href="{{ url_for('admin.upload_pages') }}">🖼️ Upload Pages</a></p>
+
+<hr>
+<h3>Existing Manga</h3>
+<ul>
+    {% for m in mangas %}
+    <li>
+        <strong>{{ m.title }}</strong> - {{ m.author }} ({{ m.chapters|length }} chapters)
+    </li>
+    {% else %}
+    <li>No manga added yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
