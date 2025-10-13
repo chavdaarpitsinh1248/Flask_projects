@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% black title %}My Favorites{% endblock %}
+{% black content %}
+<h2>❤️ My Favorites</h2>
+<ul>
+    {% for fav in favorites %}
+    <li>
+        <a href="{{ url_for('main.manga_detail', manga_id=fav.manga.id) }}">{{ fav.manga.title }}</a>
+        <small>Added on {{ fav.timestamp.strftime('%Y-%m-%d') }}</small>
+    </li>
+    {% else %}
+    <p>No favorites yet.</p>
+    {% endfor %}
+</ul>
+{% endblock %}
