@@ -72,3 +72,25 @@ form {
 .fav-btn:hover {
     background-color: #ffbcbc;
 }
+
+textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #aaa;
+    resize: vertical;
+}
+
+button {
+    margin-top: 4px;
+    padding: 6px 12px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #555;
+}
