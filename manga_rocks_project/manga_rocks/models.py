@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db, login_manager
 
@@ -92,14 +92,25 @@ class Favorite(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     manga_id = db.Column(db.Integer, db.ForeignKey("manga.id"), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship("User", back_populates="favorites")
     manga = db.relationship("Manga")
 
     def __repr__(self):
         return f"<Favorite {self.user.username} -> {self.manga.title}>"
-    
+
+#---------------------Reading History---------------------#
+class ReadingHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    manga_id = db.Column(db.Integer, db.ForeignKey("manga.id"))
+    last_chapter_id = db.Column(db.Integer, db.ForeignKey("chapter.id"))
+    last_read_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship("User", back_populates="reading_history", lazy=True)
+    manga = db.relationship("Manga", back_populates="history_entries", lazy=True)
+    chapter = db.relationship("Chapter", lazy=True)
 
 #---------------------Comment---------------------#
 class Comment(db.Model):
