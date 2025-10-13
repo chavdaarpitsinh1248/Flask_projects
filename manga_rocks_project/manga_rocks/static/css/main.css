@@ -58,3 +58,17 @@ nav a {
 form {
     margin-bottom: 15px;
 }
+
+.fav-btn {
+    display: inline-block;
+    padding: 6px 10px;
+    background-color: #ffdddd;
+    border-radius: 8px;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
+
+.fav-btn:hover {
+    background-color: #ffbcbc;
+}
