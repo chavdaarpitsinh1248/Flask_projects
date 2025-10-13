@@ -1,8 +1,9 @@
 import os
-from flask import Flask
+from flask import Flask, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_wtf import CSRFProtect
+from time import time
 
 #singletons to be imported elsewhere
 db = SQLAlchemy()
@@ -33,6 +34,14 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
+
+    #--- simple Local cache (dictionary) ---
+    cache = {}
+
+    @app.before_request
+    def check_cache():
+        g.cache = cache
+
 
     login_manager.login_view = "auth.login"
     login_manager.login_message = "Please login to access this page"
