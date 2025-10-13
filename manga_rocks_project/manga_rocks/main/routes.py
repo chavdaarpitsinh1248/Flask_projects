@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, abort, flash, redirect, url_for
-from ..models import Manga, Chapter, Page, Favorite, ReadingHistory, db
+from ..models import Manga, Chapter, Page, Favorite, ReadingHistory, db, Comment
 from sqlalchemy import or_
 from flask_login import login_required, current_user
 from datetime import datetime
@@ -73,6 +73,10 @@ def read_chapter(chapter_id):
 def toggle_favorite(manga_id):
     manga = Manga.query.get_or_404(manga_id)
     existing = Favorite.query.filter_by(user_id=current_user.id, manga_id=manga_id).first()
+    is_favorite = False
+
+    if current_user.is_authenticated:
+        is_favorite = any(f.manga_id == manga.id for f in current_user.favorites)
 
     if existing:
         db.session.delete(existing)
@@ -84,7 +88,7 @@ def toggle_favorite(manga_id):
         db.session.commit()
         flash(f"Added {manga.title} to favorites.", "success")
 
-    return redirect(url_for('main.manga_detail', manga_id=manga_id))
+    return redirect(url_for('main.manga_detail', manga_id=manga_id, is_favorite=is_favorite))
 
 @main_bp.route("/favorites")
 @login_required
@@ -122,3 +126,33 @@ def user_history():
     )
 
     return render_template("user_history.html", history_entries=history_entries)
+
+
+#---------------Comment-----------------
+@main_bp.route("/chapter/<int:chapter_id>/comments", methods=["POST"])
+@login_required
+def post_comment(chapter_id):
+    content = request.form.get("content")
+    if not content.strip():
+        flash("Comment can not be Empty!", "warning")
+        return redirect(url_for("main.read_chapter", chapter_id=chapter_id))
+    
+    comment = Comment(content=content, user_id=current_user.id, chapter_id=chapter_id)
+    db.session.add(comment)
+    db.session.commit()
+
+    flash("Comment posted!", "success")
+    return redirect(url_for("main.read_chapter", chapter_id=chapter_id))
+
+@main_bp.route("/comment/<int:chapter_id>/delete")
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+
+    if current_user.id != comment.user_id and current_user.role != "admin":
+        abort(403)
+
+    db.session.delete(comment)
+    db.session.commit()
+    flash("Comment Deleted.", "danger")
+    return redirect(url_for("main.read_chapter", chapter_id=comment.chapter_id))
