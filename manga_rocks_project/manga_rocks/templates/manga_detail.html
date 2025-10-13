@@ -3,6 +3,15 @@
 {% block content %}
 <div class="manga-detail">
     <h2>{{ manga.title }}</h2>
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('main.toggle_favorite', manga_id=manga_id) }}" class="fav_btn">
+        {% if manga in [f.manga for f in current_user.favorites] %}
+        ❤️ Remove from Favorites
+        {% else %}
+        🤍 Add to Favorites
+        {% endif %}
+    </a>
+
     {% if manga.cover_image %}
     <img src="{{ url_for('static', filename=manga.cover_image) }}" alt="{{ manga.title }}" height="250">
     {% endif %}
