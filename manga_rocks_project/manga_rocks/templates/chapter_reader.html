@@ -1,67 +1,60 @@
 {% extends "base.html" %}
-{% block title %}{{ manga.tilte }} - Chapter {{ chapter.number}}{% endblock %}
+{% block title %}{{ manga.title }} - Chapter {{ chapter.number }}{% endblock %}
 {% block content %}
-<div class="reader-header">
-    <h2>{{ manga.title }} - Chapter {{ chapter.number }}</h2>
-    <div class="reader-nav">
+<div class="text-center mb-4">
+    <h2 class="fw-bold">{{ manga.title }} - Chapter {{ chapter.number }}</h2>
+
+    <div class="d-flex justify-content-center gap-2 my-3">
         {% if prev_chapter %}
-        <a href="{{ url_for('main.read_chapter', chapter_id=prev_chapter.id) }}">⬅ Previous</a>
+        <a href="{{ url_for('main.chapter_reader', chapter_id=prev_chapter.id) }}" class="btn btn-outline-secondary">⬅
+            Previous</a>
         {% endif %}
-        <a href="{{ url_for('main.manga_detail', manga_id=manga.id) }}">📚 All Chapters</a>
+        <a href="{{ url_for('main.manga_detail', manga_id=manga.id) }}" class="btn btn-primary">📚 All Chapters</a>
         {% if next_chapter %}
-        <a href="{{ url_for('main.read_chapter', chapter_id=next_chapter.id) }}">Next ➡</a>
+        <a href="{{ url_for('main.chapter_reader', chapter_id=next_chapter.id) }}"
+            class="btn btn-outline-secondary">Next ➡</a>
         {% endif %}
     </div>
 </div>
 
-<hr>
-
-<div class="reader-pages">
+<div class="text-center mb-5">
     {% for p in pages %}
-    <img src="{{ url_for('static', filename=p.image_path) }}" alt="Page {{ p.page_number }}" class="reader-page"
-        loading="lazy">
+    <img src="{{ url_for('static', filename=p.image_path) }}" alt="Page {{ p.page_number }}"
+        class="img-fluid rounded shadow mb-3" loading="lazy">
     {% else %}
-    <p> No pages found for this chapter.</p>
+    <p class="text-muted">No pages found for this chapter.</p>
     {% endfor %}
 </div>
 
 <hr>
 
-<div class="reader-nav bottom">
-    {% if prev_chapter %}
-    <a href="{{ url_for('main.read_chapter', chapter_id=prev_chapter.id) }}">⬅ Previous</a>
-    {% endif %}
-    {% if next_chapter %}
-    <a href="{{ url_for('main.read_chapter', chapter_id=next_chapter.id) }}">Next ➡</a>
-    {% endif %}
-</div>
-
-<hr>
-<h3>💬 Comments</h3>
+<h3 class="mb-3">💬 Comments</h3>
 
 {% if current_user.is_authenticated %}
-<form action="{{ url_for('main.post_comment', chapter_id=chapter_id) }}" method="POST">
-    <textarea name="content" rows="3" placeholder="Write your comment...." required></textarea><br>
-    <button type="submit">Post Comment</button>
+<form action="{{ url_for('main.post_comment', chapter_id=chapter_id) }}" method="POST" class="mb-4">
+    <div class="mb-3">
+        <textarea name="content" rows="3" class="form-control" placeholder="Write your comment..." required></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Post Comment</button>
 </form>
 {% else %}
 <p><a href="{{ url_for('auth.login') }}">Log in</a> to post a comment.</p>
 {% endif %}
 
-<hr>
-{% for comment in chapter.comments|sort(attribute='timestamp', reverse=True) %}
-<div style="border: 1px solid #ccc; padding: 8px; margin-bottom: 6px; border-radius: 6px;">
-    <strong>{{ comment.user.username }}</strong>
-    <small style="color: gray;">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
-    <p>{{ comment.content }}</p>
-
-    {% if current_user.is_authenticated and (comment.user_id == current_user.id or current_user.role == "admin") %}
-    <a href="{{ url_for('main.delete_comment', comment_id=comment_id) }}" style="color: red;">Delete</a>
-    {% endif %}
+{% for comment in chapter.comments|sort(attribute='created_at', reverse=True) %}
+<div class="card mb-3 shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <strong>{{ comment.user.username }}</strong>
+            <small class="text-muted">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+        </div>
+        <p class="mt-2">{{ comment.content }}</p>
+        {% if current_user.is_authenticated and (comment.user_id == current_user.id or current_user.role == "admin") %}
+        <a href="{{ url_for('main.delete_comment', comment_id=comment.id) }}" class="text-danger small">Delete</a>
+        {% endif %}
+    </div>
 </div>
 {% else %}
-<p>No comments yet. be the First!</p>
+<p class="text-muted">No comments yet. Be the first!</p>
 {% endfor %}
-
-
 {% endblock %}
