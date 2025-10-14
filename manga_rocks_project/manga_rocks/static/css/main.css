@@ -94,3 +94,72 @@ button {
 button:hover {
     background-color: #555;
 }
+
+.transition {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 🌙 Dark mode adjustments */
+body.bg-dark {
+    background-color: #121212 !important;
+    color: #f1f1f1 !important;
+}
+
+body.bg-dark nav a {
+    color: #f1f1f1;
+}
+
+body.bg-dark nav a:hover {
+    color: #ffd966;
+}
+
+body.bg-dark .pagination a {
+    background-color: #333;
+    color: #f1f1f1;
+}
+
+body.bg-dark .pagination a:hover {
+    background-color: #555;
+}
+
+body.bg-dark .fav-btn {
+    background-color: #ff6666;
+    color: white;
+}
+
+body.bg-dark .fav-btn:hover {
+    background-color: #ff4d4d;
+}
+
+body.bg-dark button {
+    background-color: #666;
+}
+
+body.bg-dark button:hover {
+    background-color: #888;
+}
+
+/* Bootstrap Component Dark Mode Tweaks */
+body.bg-dark .card {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+    border: 1px solid #333;
+}
+
+body.bg-dark .card a {
+    color: #ffd966;
+}
+
+body.bg-dark .card a:hover {
+    color: #fff2b3;
+}
+
+body.bg-dark .alert {
+    background-color: #333;
+    color: #f1f1f1;
+    border-color: #555;
+}
+
+body.bg-dark .navbar {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
