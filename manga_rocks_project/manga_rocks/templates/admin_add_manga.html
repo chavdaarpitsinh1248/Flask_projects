@@ -1,14 +1,20 @@
 {% extends "base.html" %}
 {% block title %}Add Manga{% endblock %}
 {% block content %}
-<h2>Add Manga</h2>
-<form method="POST" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-    <p>{{ form.title.label }}<br>{{ form.title(size=40) }}</p>
-    <p>{{ form.author.label }}<br>{{ form.author(size=40) }}</p>
-    <p>{{ form.description.label }}<br>{{ form.description(rows=3, cols=50) }}</p>
-    <p>{{ form.cover_image.label }}<br>{{ form.cover_image() }}</p>
-    <p>{{ form.genres.label }}<br>{{ form.genres(multipart=True, size=5) }}</p>
-    <p>{{ form.submit() }}</p>
-</form>
+<div class="col-md-8 offset-md-2">
+    <div class="card shadow p-4">
+        <h2 class="mb-4 text-center">➕ Add Manga</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">{{ form.title.label(class="form-label") }}{{ form.title(class="form-control") }}</div>
+            <div class="mb-3">{{ form.author.label(class="form-label") }}{{ form.author(class="form-control") }}</div>
+            <div class="mb-3">{{ form.description.label(class="form-label") }}{{ form.description(class="form-control")
+                }}</div>
+            <div class="mb-3">{{ form.cover_image.label(class="form-label") }}{{ form.cover_image(class="form-control")
+                }}</div>
+            <div class="mb-3">{{ form.genres.label(class="form-label") }}{{ form.genres(class="form-select") }}</div>
+            {{ form.submit(class="btn btn-primary w-100") }}
+        </form>
+    </div>
+</div>
 {% endblock %}
