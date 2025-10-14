@@ -1,17 +1,19 @@
 {% extends "base.html" %}
 {% block title %}Reading History{% endblock %}
 {% block content %}
-<h2>📜 Reading History</h2>
-<ul>
+<h2 class="fw-bold mb-4">📜 Reading History</h2>
+<ul class="list-group">
     {% for h in history_entries %}
-    <li>
-        <a href="{{ url_for('main.read_chapter', chapter_id=h.last_chapter_id) }}">
-            {{ h.manga.title }} - Chapter {{ h.chapter.number }}
-        </a>
-        <small>Last Read: {{ h.last_read_at.strftime('%Y-%m-%d %H:%M') }}</small>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <a href="{{ url_for('main.chapter_reader', chapter_id=h.last_chapter_id) }}" class="text-decoration-none">
+                {{ h.manga.title }} - Chapter {{ h.chapter.number }}
+            </a>
+        </div>
+        <small class="text-muted">Last Read: {{ h.last_read_at.strftime('%Y-%m-%d %H:%M') }}</small>
     </li>
     {% else %}
-    <p>No reading history yet.</p>
+    <p class="text-muted">No reading history yet.</p>
     {% endfor %}
 </ul>
 {% endblock %}
