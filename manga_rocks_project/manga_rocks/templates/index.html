@@ -1,7 +1,32 @@
 {% extends "base.html" %}
-{% block title %}Home - Mange Rocks {% endblock %}
+{% block title %}Home - Manga Rocks{% endblock %}
 {% block content %}
-<h1>Local Manga Reader</h1>
-<p>step 1 completed</p>
-<p>Uploads folder (static): <code>/static/uploads</code></p>
+<div class="text-center">
+    <h1 class="display-5 fw-bold mb-3">Welcome to Manga Rocks</h1>
+    <p class="lead text-muted mb-4">Read, manage, and enjoy your favorite manga — all in one place.</p>
+    <a href="{{ url_for('main.manga_list') }}" class="btn btn-primary btn-lg">📚 Browse Manga</a>
+</div>
+
+<hr class="my-5">
+
+<div class="row text-center">
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h4>Upload</h4>
+            <p>Easily add new manga and chapters through the admin dashboard.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h4>Read</h4>
+            <p>Enjoy seamless chapter viewing with an optimized reader experience.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h4>Track</h4>
+            <p>Keep a record of your favorites and reading history automatically.</p>
+        </div>
+    </div>
+</div>
 {% endblock %}
