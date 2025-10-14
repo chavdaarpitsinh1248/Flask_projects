@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Upload Pages{% endblock %}
 {% block content %}
-<h2>Upload Pages</h2>
-<form method="POST" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-    <p>{{ form.chapter_id.label }}<br>{{ form.chapter_id() }}</p>
-    <p>{{ form.pages.label }}<br>{{ form.pages() }}</p>
-    <p>{{ form.submit() }}</p>
-</form>
+<div class="col-md-8 offset-md-2">
+    <div class="card shadow p-4">
+        <h2 class="mb-4 text-center">🖼 Upload Chapter Pages</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">{{ form.chapter_id.label(class="form-label") }}{{ form.chapter_id(class="form-select") }}
+            </div>
+            <div class="mb-3">{{ form.pages.label(class="form-label") }}{{ form.pages(class="form-control",
+                multiple=True) }}</div>
+            {{ form.submit(class="btn btn-primary w-100") }}
+        </form>
+    </div>
+</div>
 {% endblock %}
