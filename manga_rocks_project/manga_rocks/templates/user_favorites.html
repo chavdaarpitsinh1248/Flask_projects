@@ -1,15 +1,23 @@
 {% extends "base.html" %}
-{% black title %}My Favorites{% endblock %}
-{% black content %}
-<h2>❤️ My Favorites</h2>
-<ul>
+{% block title %}My Favorites{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">❤️ My Favorites</h2>
+<div class="row g-4">
     {% for fav in favorites %}
-    <li>
-        <a href="{{ url_for('main.manga_detail', manga_id=fav.manga.id) }}">{{ fav.manga.title }}</a>
-        <small>Added on {{ fav.timestamp.strftime('%Y-%m-%d') }}</small>
-    </li>
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100 shadow-sm">
+            <a href="{{ url_for('main.manga_detail', manga_id=fav.manga.id) }}">
+                <img src="{{ url_for('static', filename=fav.manga.cover_image or 'default_cover.jpg') }}"
+                    class="card-img-top" alt="{{ fav.manga.title }}">
+            </a>
+            <div class="card-body text-center">
+                <h5>{{ fav.manga.title }}</h5>
+                <small class="text-muted">Added on {{ fav.created_at.strftime('%Y-%m-%d') }}</small>
+            </div>
+        </div>
+    </div>
     {% else %}
-    <p>No favorites yet.</p>
+    <p class="text-muted">No favorites yet.</p>
     {% endfor %}
-</ul>
+</div>
 {% endblock %}
