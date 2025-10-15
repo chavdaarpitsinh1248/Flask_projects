@@ -21,6 +21,11 @@ class User(UserMixin, db.Model):
     reports_received = db.relationship('Report', backref='reported_user', lazy=True, foreign_keys='Report.reported_user_id')
     studio_requests = db.relationship('StudioRequest', backref='requester', lazy=True)
 
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
     def is_admin(self):
         return self.role == ROLE_ADMIN
