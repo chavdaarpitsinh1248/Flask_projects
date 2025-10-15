@@ -10,7 +10,7 @@ notif_bp = Blueprint('notifications', __name__)
 def notifications():
     # Get all notification for current user, lastest first
     notifs = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.timestamp.desc()).all()
-    return render_template('notifications', notifications=notifs)
+    return render_template('notifications.html', notifications=notifs)
 
 
 @notif_bp.route('/mark_read/<int:notif_id>')
