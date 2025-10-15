@@ -47,6 +47,7 @@ class Manga(db.Model):
 
 class Chapter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.Integer, nullable=False)  # Add chapter number
     title = db.Column(db.String(200), nullable=False)
     manga_id = db.Column(db.Integer, db.ForeignKey('manga.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
