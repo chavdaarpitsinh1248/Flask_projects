@@ -39,7 +39,7 @@ class Manga(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
-    image = db.Column(db.String(200))
+    cover_image = db.Column(db.String(200), nullable=True)
     studio_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     studio_name = db.Column(db.String(150), nullable=True)  # denormalized for easier display
 
