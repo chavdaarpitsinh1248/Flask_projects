@@ -14,7 +14,7 @@ admin_bp = Blueprint('admin', __name__)
 def dashboard():
     pending_requests = StudioRequest.query.filter_by(status="pending").all()
     all_users = User.query.filter(User.role != 'admin').all()
-    return render_template('admin_dashboard.html', pending_requests=pending_requests)
+    return render_template('admin_dashboard.html', pending_requests=pending_requests, all_users=all_users)
 
 
 #Accept Studio Request

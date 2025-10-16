@@ -43,7 +43,7 @@ class Manga(db.Model):
     studio_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     studio_name = db.Column(db.String(150), nullable=True)  # denormalized for easier display
 
-    chapters = db.relationship('Chapter', backref='manga', lazy=True)
+    chapters = db.relationship('Chapter', backref='manga', lazy=True, cascade="all, delete-orphan")
     comments = db.relationship('Comment', backref='manga', lazy=True)
 
 class Chapter(db.Model):

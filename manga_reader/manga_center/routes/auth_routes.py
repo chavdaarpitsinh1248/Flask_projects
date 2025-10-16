@@ -24,7 +24,7 @@ def register():
         )
         db.session.add(new_user)
         db.session.commit()
-        flash("Registration Seccussful. You can login now.", "success")
+        flash("Registration Successful. You can login now.", "success")
         return redirect(url_for('auth.login'))
     return render_template('register.html', form=form)
 
@@ -37,7 +37,7 @@ def login():
             login_user(user)
             flash('Logged in successfully.', 'success')
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('manga_index'))
+            return redirect(next_page or url_for('manga.index'))
         flash('Invalid email or password', 'danger')
     return render_template('login.html', form=form)
 

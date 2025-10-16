@@ -27,7 +27,7 @@
 <div>
     <h3>Studio Access</h3>
     {% if current_user.role == "user" %}
-    <button><a href="{{ url_for('user.request_studio') }}">Request to Become Studio</a></button>
+    <button><a href="{{ url_for('studio.request_studio') }}">Request to Become Studio</a></button>
     {% elif current_user.role == "studio" %}
     <p>You are a Registered Studio.</p>
     {% else %}

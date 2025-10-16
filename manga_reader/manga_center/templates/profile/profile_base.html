@@ -1,14 +1,11 @@
 {% extends "base.html" %}
+
 {% block content %}
 <div class="profile-container">
 
     <!-- Left menu -->
     <div class="profile-sidebar" style="width: 250px;">
-        <ul style="list-style: none; padding: 0;">
-            <li><a href="{{ url_for('profile.my_account') }}">My Account</a></li>
-            <li><a href="{{ url_for('profile.history') }}">History</a></li>
-            <li><a href="{{ url_for('profile.bookmarks') }}">Bookmarks</a></li>
-        </ul>
+        {% include "profile/sidebar.html" %}
     </div>
 
     <!-- Right Main Section -->

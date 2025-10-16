@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from .. import db
 from ..models import Notification
 
-notif_bp = Blueprint('notifications', __name__)
+notif_bp = Blueprint('notif', __name__)
 
 @notif_bp.route('/')
 @login_required
@@ -18,7 +18,7 @@ def notifications():
 def mark_read(notif_id):
     notif = Notification.query.get_or_404(notif_id)
     if notif.user_id != current_user.id:
-        return redirect(url_for('notifications.notifications'))
+        return redirect(url_for('notif.notifications'))
     notif.read = True
     db.session.commit()
-    return redirect(url_for('notifications.notifications'))
+    return redirect(url_for('notif.notifications'))
