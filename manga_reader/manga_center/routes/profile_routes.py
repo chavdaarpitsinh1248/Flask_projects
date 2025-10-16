@@ -25,8 +25,10 @@ def my_account():
         if 'image_file' in request.files:
             image = request.files['image_file']
             if image.filename != '':
-                filename = secure_filename(image.filename)
-                image_path = os.path.join(current_app.root_path, 'static/profile_pics', filename)
+                filename = secure_filename(image.filename)                
+                upload_folder = os.path.join(current_app.root_path, 'static/profile_pics')
+                os.makedirs(upload_folder, exist_ok=True)
+                image_path = os.path.join(upload_folder, filename)
                 image.save(image_path)
                 current_user.image_file = filename
 
@@ -54,7 +56,7 @@ def delete_account():
     
     user_id=current_user.id
     logout_user()
-    User.query.filter_by(id=user_id).delete()
+    db.session.delete(current_user)
     db.session.commit()
     flash('Account deleted successfully.', 'success')
     return redirect(url_for('auth.login'))
@@ -68,7 +70,7 @@ def history():
     history_entries = (
         History.query.filter_by(user_id = current_user.id)
         .order_by(History.last_viewed.desc())
-        .all(0)
+        .all()
     )
     return render_template('profile/history.html', history_entries=history_entries)
 
