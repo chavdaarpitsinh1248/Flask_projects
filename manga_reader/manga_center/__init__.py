@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
-from .models import Notification
+from .models import Notification, User
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -44,6 +44,12 @@ def create_app():
     app.register_blueprint(report_bp, url_prefix='/reports')
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(bookmark_bp, url_prefix='/bookmarks')
+
+
+    #Flask login user loader
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
     
     @app.context_processor
     def inject_unread_notifications():
