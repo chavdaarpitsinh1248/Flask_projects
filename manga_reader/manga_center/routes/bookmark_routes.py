@@ -1,11 +1,11 @@
 from flask import Blueprint, redirect, url_for, flash
 from flask_login import login_required, current_user
 from .. import db
-from ..models import User, Bookmark, Notification, Manga
+from ..models import Bookmark, Notification, Manga
 
 bookmark_bp = Blueprint('bookmark', __name__)
 
-# Add or Remove Bookmark(toggle)
+# Add or Remove Bookmark (toggle)
 @bookmark_bp.route('/toggle/<int:manga_id>')
 @login_required
 def toggle_bookmark(manga_id):
@@ -16,13 +16,12 @@ def toggle_bookmark(manga_id):
         # Remove Bookmark
         db.session.delete(bookmark)
         db.session.commit()
-        flash(f'Removed { manga.title } from bookmarks.', 'info')
-
+        flash(f'Removed {manga.title} from bookmarks.', 'info')
     else:
         # Add Bookmark
         new_bookmark = Bookmark(user_id=current_user.id, manga_id=manga_id)
         db.session.add(new_bookmark)
         db.session.commit()
-        flash(f'Bookmarked { manga.title }.', 'success')
+        flash(f'Bookmarked {manga.title}.', 'success')
 
     return redirect(url_for('manga.view_manga', manga_id=manga_id))
