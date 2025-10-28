@@ -97,6 +97,7 @@ def view_manga():
 
 # Add chapter to manga
 # Add chapter pages to manga
+# Add chapter to manga (save pages under static/uploads/<manga_id>/<chapter_number>/)
 @studio_bp.route('/manga/<int:manga_id>/add_chapter', methods=["GET", "POST"])
 @login_required
 @studio_required
@@ -116,21 +117,22 @@ def add_chapter(manga_id):
         db.session.add(chapter)
         db.session.commit()
 
-        # Create folder: uploads/manga_id/chapter_number/
-        folder = os.path.join(current_app.root_path, 'uploads', str(manga.id), str(chapter.number))
+        # Create folder inside static: static/uploads/<manga_id>/<chapter_number>/
+        folder = os.path.join(current_app.static_folder, 'uploads', str(manga.id), str(chapter.number))
         os.makedirs(folder, exist_ok=True)
 
-        # Save uploaded pages
+        # Save uploaded pages (form field name: 'pages')
         for idx, page_file in enumerate(request.files.getlist('pages'), start=1):
-            if page_file.filename != '':
+            if page_file and page_file.filename:
                 filename = secure_filename(page_file.filename)
                 filepath = os.path.join(folder, f"{idx}_{filename}")
                 page_file.save(filepath)
 
-                # Create Page entry in DB
+                # Store path relative to static folder for url_for('static', filename=...)
+                rel_path = os.path.join('uploads', str(manga.id), str(chapter.number), f"{idx}_{filename}")
                 page = Page(
                     chapter_id=chapter.id,
-                    image=filepath.replace(current_app.root_path + '/',''),  # relative path for url_for
+                    image=rel_path.replace('\\', '/'),
                     page_number=idx
                 )
                 db.session.add(page)
@@ -150,40 +152,40 @@ def add_chapter(manga_id):
 
     return render_template('studio/add_chapter.html', form=form, manga=manga)
 
-
-@studio_bp.route('/<int:manga_id>/chapter/<int:chapter_id>')
+#
+# Preview/read chapter for studio (serve pages saved in static/uploads)
+@studio_bp.route('/<int:manga_id>/chapter/<int:chapter_number>')
 @login_required
 def read_chapter(manga_id, chapter_number):
     manga = Manga.query.get_or_404(manga_id)
     chapter = Chapter.query.filter_by(manga_id=manga_id, number=chapter_number).first_or_404()
 
-    # Folder path for pages
-    folder = os.path.join(current_app.root_path, 'uploads', str(manga_id), str(chapter.number))
-    
-    # Get all image files sorted by filename ascending
-    page_files = sorted(os.listdir(folder), key=lambda x: int(os.path.splitext(x)[0]))
+    # Get Page objects (DB entries) ordered by page_number
+    pages = Page.query.filter_by(chapter_id=chapter.id).order_by(Page.page_number).all()
 
-    # Build URLs
-    pages = [url_for('static', filename=f'uploads/{manga_id}/{chapter.number}/{f}') for f in page_files]
+    # Build URL list (strings) for template compatibility; template also accepts Page objects
+    page_urls = [ url_for('static', filename=p.image) for p in pages ]
 
-    # Update user history
-    history_entry = History.query.filter_by(
-        user_id=current_user.id,
-        manga_id=manga_id,
-        chapter_id=chapter.id
-    ).first()
-    if history_entry:
-        history_entry.last_viewed = datetime.utcnow()
-    else:
-        history_entry = History(
+    # Update user history (if logged in user)
+    if current_user.is_authenticated:
+        history_entry = History.query.filter_by(
             user_id=current_user.id,
             manga_id=manga_id,
             chapter_id=chapter.id
-        )
-        db.session.add(history_entry)
-    db.session.commit()
+        ).first()
+        if history_entry:
+            history_entry.last_viewed = datetime.utcnow()
+        else:
+            history_entry = History(
+                user_id=current_user.id,
+                manga_id=manga_id,
+                chapter_id=chapter.id
+            )
+            db.session.add(history_entry)
+        db.session.commit()
 
-    return render_template('manga/read_chapter.html', manga=manga, chapter=chapter, pages=pages)
+    # Return list of page-URLs (templates you have accept URL strings or Page objects)
+    return render_template('manga/read_chapter.html', manga=manga, chapter=chapter, pages=page_urls)
 
 
 # DashBoard
@@ -195,7 +197,7 @@ def dashboard():
     return render_template('studio/dashboard.html', mangas=mangas)
 
 
-# Edit Chapter
+# Edit chapter (update chapter info, add new pages)
 @studio_bp.route('/chapter/<int:chapter_id>/edit', methods=['GET', 'POST'])
 @login_required
 @studio_required
@@ -207,32 +209,44 @@ def edit_chapter(chapter_id):
         return redirect(url_for('studio.view_manga'))
 
     if request.method == 'POST':
-        # Update chapter info
-        chapter.number = request.form.get('number', chapter.number)
+        # Update chapter metadata
+        # Request form values are strings — cast where needed
+        num = request.form.get('number')
+        if num and str(num).isdigit():
+            chapter.number = int(num)
         chapter.title = request.form.get('title', chapter.title)
-        
-        # Update page order
+
+        # Update page order (page_order_{page.id})
         for page in chapter.pages:
             new_order = request.form.get(f'page_order_{page.id}')
-            if new_order:
+            if new_order and str(new_order).isdigit():
                 page.page_number = int(new_order)
-        
-        # Add new pages
+
+        # Add new uploaded pages (field name: 'new_pages')
         new_files = request.files.getlist('new_pages')
-        folder = os.path.join(current_app.root_path, f'static/uploads/manga/{manga.id}/{chapter.number}')
+        folder = os.path.join(current_app.static_folder, 'uploads', str(manga.id), str(chapter.number))
         os.makedirs(folder, exist_ok=True)
 
         next_page_number = max([p.page_number for p in chapter.pages], default=0) + 1
         for file in new_files:
             if file and file.filename:
                 filename = secure_filename(file.filename)
-                path = os.path.join(folder, filename)
+                # Ensure unique filename in folder
+                base, ext = os.path.splitext(filename)
+                counter = 1
+                unique_name = filename
+                while os.path.exists(os.path.join(folder, unique_name)):
+                    unique_name = f"{base}_{counter}{ext}"
+                    counter += 1
+
+                path = os.path.join(folder, unique_name)
                 file.save(path)
-                page_path = f'uploads/manga/{manga.id}/{chapter.number}/{filename}'
-                new_page = Page(chapter_id=chapter.id, image=page_path, page_number=next_page_number)
+
+                rel = os.path.join('uploads', str(manga.id), str(chapter.number), unique_name).replace('\\', '/')
+                new_page = Page(chapter_id=chapter.id, image=rel, page_number=next_page_number)
                 db.session.add(new_page)
                 next_page_number += 1
-        
+
         db.session.commit()
         flash("Chapter updated successfully!", "success")
         return redirect(url_for('studio.edit_chapter', chapter_id=chapter.id))
