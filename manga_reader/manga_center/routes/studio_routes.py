@@ -277,7 +277,7 @@ def delete_chapter(chapter_id):
     flash("Chapter deleted successfully!", "success")
     return redirect(url_for('studio.dashboard'))
 
-# Save new pages or reorder existing pages
+# Manage pages (reorder + add pages) - ensure pages saved under static/uploads/...
 @studio_bp.route('/chapter/<int:chapter_id>/manage_pages', methods=['POST'])
 @login_required
 @studio_required
@@ -293,36 +293,34 @@ def manage_pages(chapter_id):
         if new_order and new_order.isdigit():
             page.page_number = int(new_order)
 
-    # Add new pages
-    if 'new_pages' in request.files:
-        new_files = request.files.getlist('new_pages')
-        folder = os.path.join(current_app.root_path, 'static/manga_uploads', str(chapter.manga_id), str(chapter.number))
+    # Add new pages if present
+    new_files = request.files.getlist('new_pages')
+    if new_files:
+        folder = os.path.join(current_app.static_folder, 'uploads', str(chapter.manga_id), str(chapter.number))
         os.makedirs(folder, exist_ok=True)
 
-        # Find the next page number
         existing_numbers = [p.page_number for p in chapter.pages]
         next_page_number = max(existing_numbers, default=0) + 1
 
         for f in new_files:
-            if f.filename == '':
+            if not f or not f.filename:
                 continue
 
-            # Make filename unique
             filename = secure_filename(f.filename)
             base, ext = os.path.splitext(filename)
             counter = 1
-            while os.path.exists(os.path.join(folder, filename)):
-                filename = f"{base}_{counter}{ext}"
+            unique_name = filename
+            while os.path.exists(os.path.join(folder, unique_name)):
+                unique_name = f"{base}_{counter}{ext}"
                 counter += 1
 
-            # Save file
-            path = os.path.join(folder, filename)
+            path = os.path.join(folder, unique_name)
             f.save(path)
 
-            # Create Page entry
+            rel_path = os.path.join('uploads', str(chapter.manga_id), str(chapter.number), unique_name).replace('\\', '/')
             new_page = Page(
                 chapter_id=chapter.id,
-                image=os.path.join('manga_uploads', str(chapter.manga_id), str(chapter.number), filename),
+                image=rel_path,
                 page_number=next_page_number
             )
             db.session.add(new_page)
@@ -332,6 +330,8 @@ def manage_pages(chapter_id):
     flash("Pages updated successfully!", "success")
     return redirect(url_for('studio.edit_chapter', chapter_id=chapter.id))
 
+#
+# Delete single page (POST request) - remove file from static/uploads and model row
 @studio_bp.route('/page/delete/<int:page_id>', methods=['POST'])
 @login_required
 @studio_required
@@ -341,12 +341,16 @@ def delete_page(page_id):
         flash("You cannot delete pages from another studio's manga.", "danger")
         return redirect(url_for('studio.view_manga'))
 
-    # Delete file from filesystem
-    file_path = os.path.join(current_app.root_path, 'static', page.image)
-    if os.path.exists(file_path):
-        os.remove(file_path)
+    # Remove file from static folder
+    file_path = os.path.join(current_app.static_folder, page.image)
+    try:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+    except Exception:
+        pass
 
     db.session.delete(page)
     db.session.commit()
     flash("Page deleted.", "success")
+    # For JS fetch style delete returning '', 204 is fine. But redirect also works.
     return ('', 204)
