@@ -27,6 +27,12 @@
         ">{{ unread_count }}</span>
                 {% endif %}
             </a>
+            <form action="{{ url_for('search.search') }}" method="get" class="search-form">
+                <input type="text" name="q" placeholder="Search manga..." value="{{ request.args.get('q', '') }}"
+                    required>
+                <button type="submit">Search</button>
+            </form>
+
 
             <div class="dropdown" style="display: inline-block; position: relative;">
                 <button>{{ current_user.username }}</button>
