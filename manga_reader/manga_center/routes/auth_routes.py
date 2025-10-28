@@ -5,7 +5,6 @@ from .. import db
 from ..models import User, ROLE_USER
 from ..forms.auth_forms import RegisterForm, LoginForm
 
-
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST', 'GET'])
@@ -20,11 +19,11 @@ def register():
             username=form.username.data,
             email=form.email.data,
             password_hash=generate_password_hash(form.password.data),
-            role=ROLE_USER              #normal user
+            role=ROLE_USER              # normal user
         )
         db.session.add(new_user)
         db.session.commit()
-        flash("Registration Successful. You can login now.", "success")
+        flash("Registration successful. You can login now.", "success")
         return redirect(url_for('auth.login'))
     return render_template('register.html', form=form)
 
@@ -47,4 +46,3 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'success')
     return redirect(url_for('auth.login'))
-    
