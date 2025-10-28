@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from .. import db
+from ..utils import chapter_page_urls
 from ..models import StudioRequest, User, Notification, Manga, Page, Chapter, History
 from ..forms.studio_forms import StudioRequestForm, MangaForm, ChapterForm
 from .decorators import studio_required
@@ -160,33 +161,27 @@ def read_chapter(manga_id, chapter_number):
     manga = Manga.query.get_or_404(manga_id)
     chapter = Chapter.query.filter_by(manga_id=manga_id, number=chapter_number).first_or_404()
 
-    # Get Page objects (DB entries) ordered by page_number
-    pages = Page.query.filter_by(chapter_id=chapter.id).order_by(Page.page_number).all()
+    # Use helper to get page URLs (stored relative to static/)
+    page_urls = chapter_page_urls(chapter)
 
-    # Build URL list (strings) for template compatibility; template also accepts Page objects
-    page_urls = [ url_for('static', filename=p.image) for p in pages ]
-
-    # Update user history (if logged in user)
-    if current_user.is_authenticated:
-        history_entry = History.query.filter_by(
+    # Update history (works for studio users reading too)
+    history_entry = History.query.filter_by(
+        user_id=current_user.id,
+        manga_id=manga_id,
+        chapter_id=chapter.id
+    ).first()
+    if history_entry:
+        history_entry.last_viewed = datetime.utcnow()
+    else:
+        history_entry = History(
             user_id=current_user.id,
             manga_id=manga_id,
             chapter_id=chapter.id
-        ).first()
-        if history_entry:
-            history_entry.last_viewed = datetime.utcnow()
-        else:
-            history_entry = History(
-                user_id=current_user.id,
-                manga_id=manga_id,
-                chapter_id=chapter.id
-            )
-            db.session.add(history_entry)
-        db.session.commit()
+        )
+        db.session.add(history_entry)
+    db.session.commit()
 
-    # Return list of page-URLs (templates you have accept URL strings or Page objects)
     return render_template('manga/read_chapter.html', manga=manga, chapter=chapter, pages=page_urls)
-
 
 # DashBoard
 @studio_bp.route('/dashboard')
