@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 admin_bp = Blueprint('admin', __name__)
 
-#Admin dashboard
+# Admin dashboard
 @admin_bp.route('/dashboard')
 @login_required
 @admin_required
@@ -16,8 +16,15 @@ def dashboard():
     all_users = User.query.filter(User.role != 'admin').all()
     return render_template('admin_dashboard.html', pending_requests=pending_requests, all_users=all_users)
 
+# View all studio requests (separate view)
+@admin_bp.route('/studio_requests')
+@login_required
+@admin_required
+def view_studio_requests():
+    requests = StudioRequest.query.order_by(StudioRequest.requested_at.desc()).all()
+    return render_template('admin/studio_requests.html', requests=requests)
 
-#Accept Studio Request
+# Accept Studio Request
 @admin_bp.route('/studio_request/accept/<int:req_id>')
 @login_required
 @admin_required
@@ -39,7 +46,7 @@ def accept_studio_request(req_id):
     flash(f'{user.username} is now a studio!', 'success')
     return redirect(url_for('admin.dashboard'))
 
-#Reject Studio Request
+# Reject Studio Request
 @admin_bp.route('/studio_request/reject/<int:req_id>')
 @login_required
 @admin_required
@@ -60,7 +67,7 @@ def reject_studio_request(req_id):
     flash(f'{user.username} studio request rejected.', 'warning')
     return redirect(url_for('admin.dashboard'))
 
-# Promote any user into to studio directly
+# Promote any user into studio directly
 @admin_bp.route('/promote_to_studio/<int:user_id>')
 @login_required
 @admin_required
@@ -69,13 +76,13 @@ def promote_to_studio(user_id):
     if user.is_studio():
         flash(f'{user.username} is already a studio.', 'info')
         return redirect(url_for('admin.dashboard'))
-    
+
     user.role = 'studio'
 
-    #create notification
+    # create notification
     notif = Notification(
         user_id=user.id,
-        message="You have been Promoted to Studio by Admin!"
+        message="You have been promoted to Studio by Admin!"
     )
     db.session.add(notif)
     db.session.commit()
