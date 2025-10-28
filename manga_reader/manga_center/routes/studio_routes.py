@@ -253,7 +253,7 @@ def edit_chapter(chapter_id):
 
     return render_template('studio/edit_chapter.html', chapter=chapter)
 
-# Delete Chapter
+# Delete chapter (remove page files from static/uploads and delete DB rows)
 @studio_bp.route('/chapter/<int:chapter_id>/delete')
 @login_required
 @studio_required
@@ -263,11 +263,13 @@ def delete_chapter(chapter_id):
         flash("You cannot delete this chapter.", "danger")
         return redirect(url_for('studio.dashboard'))
 
-    # Delete pages from filesystem
+    # Delete page files from static folder
     for page in chapter.pages:
         try:
-            os.remove(os.path.join(current_app.root_path, page.image))
-        except:
+            file_path = os.path.join(current_app.static_folder, page.image)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except Exception:
             pass
 
     db.session.delete(chapter)
@@ -275,7 +277,6 @@ def delete_chapter(chapter_id):
     flash("Chapter deleted successfully!", "success")
     return redirect(url_for('studio.dashboard'))
 
-# Save new pages or reorder existing pages
 # Save new pages or reorder existing pages
 @studio_bp.route('/chapter/<int:chapter_id>/manage_pages', methods=['POST'])
 @login_required
