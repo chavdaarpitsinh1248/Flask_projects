@@ -1,82 +1,92 @@
 
 import os
 from flask import render_template, request, redirect, url_for, flash, current_app, abort
-from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user
 from . import author_bp
-from .forms import AddMangaForm, AddChapterForm
+from .forms import AddChapterForm, AddMangaForm
 from ...extensions import db
 from ...models import Manga, Chapter, Page
+from ...utils import (allowed_file, slugify, generate_unique_slug,
+                      save_and_verify_images)
+from werkzeug.utils import secure_filename
 
-ALLOWED_EXT = {'png', 'jpg', 'jpeg', 'webp', 'gif'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
-
-@author_bp.route('/manga/add', methods=['GET', 'POST'])
-@login_required
-def add_manga():
-    # only authors or admins can create manga
-    if not current_user.is_author():
-        abort(403)
-    form = AddMangaForm()
-    if form.validate_on_submit():
-        slug = secure_filename(form.title.data).lower().replace(' ', '-')
-        manga = Manga(title=form.title.data, slug=slug, description=form.description.data, author_id=current_user.id)
-        db.session.add(manga)
-        db.session.commit()
-        flash('Manga created. Now add chapters.', 'success')
-        return redirect(url_for('author.add_chapter', manga_id=manga.id))
-    return render_template('author/add_manga.html', form=form)
+MAX_PAGES_PER_CHAPTER = 500  # safety cap
 
 @author_bp.route('/manga/<int:manga_id>/add-chapter', methods=['GET', 'POST'])
 @login_required
 def add_chapter(manga_id):
-    # authors can add chapters only for their own mangas (or admins)
     manga = Manga.query.get_or_404(manga_id)
+
+    # permission check: must be author of that manga or admin
     if current_user.id != manga.author_id and not current_user.is_admin():
         abort(403)
 
     form = AddChapterForm()
     if request.method == 'POST':
-        # files should be in request.files.getlist('pages')
+        # files from the form input name="pages"
         files = request.files.getlist('pages')
+        # form.number may be None if using request.form; prefer explicit parse
         chapter_number = request.form.get('number', type=int) or form.number.data
-        title = request.form.get('title') or form.title.data
+        chapter_title = request.form.get('title', '').strip() or form.title.data
 
+        # basic validation:
         if not chapter_number:
-            flash('Chapter number is required', 'warning')
+            flash('Please provide a chapter number.', 'warning')
             return redirect(request.url)
 
-        # create chapter
-        chapter = Chapter(manga_id=manga.id, number=chapter_number, title=title)
+        if not files or len(files) == 0:
+            flash('Please upload at least one image for the chapter pages.', 'warning')
+            return redirect(request.url)
+
+        if len(files) > MAX_PAGES_PER_CHAPTER:
+            flash(f'You can upload at most {MAX_PAGES_PER_CHAPTER} pages per chapter.', 'warning')
+            return redirect(request.url)
+
+        # ensure chapter number is unique for this manga
+        existing = Chapter.query.filter_by(manga_id=manga.id, number=chapter_number).first()
+        if existing:
+            flash(f'Chapter number {chapter_number} already exists for this manga.', 'danger')
+            return redirect(request.url)
+
+        # create a chapter row (do not commit yet)
+        chapter_slug_base = chapter_title or f"chapter-{chapter_number}"
+        chapter_slug = slugify(chapter_slug_base)
+        # if you want to ensure unique chapter slug per manga, you can append chapter.number or use db constraints
+        chapter = Chapter(manga_id=manga.id, number=chapter_number, title=chapter_title, slug=chapter_slug)
         db.session.add(chapter)
-        db.session.flush()  # get chapter.id
+        db.session.flush()  # get chapter.id if needed
 
-        # build folders under app.static/uploads/mangas/{manga_slug}-{author_username}/chapter_{number}_{chapter_slug}
-        manga_dir = secure_filename(f"{manga.slug}-{manga.author.username}")
-        chapter_slug = secure_filename(title) if title else ''
-        chapter_dir = secure_filename(f"chapter_{chapter.number}_{chapter_slug}")
+        # build safe folder names
+        # use manga.slug, author's username and manga.id to avoid collisions
+        author_username = (manga.author.username if getattr(manga, 'author', None) else f'user{manga.author_id}')
+        manga_dirname = secure_filename(f"{manga.slug}-{author_username}-{manga.id}")
+        chapter_dirname = secure_filename(f"chapter_{chapter.number}_{chapter.slug or chapter.title or ''}")
 
-        base_dir = os.path.join(current_app.static_folder, current_app.config.get('UPLOADS_DIR', 'uploads'),
-                                'mangas', manga_dir, chapter_dir)
-        os.makedirs(base_dir, exist_ok=True)
+        try:
+            # use utils to save/verify images; returns list of relative paths and absolute final paths
+            relative_paths, absolute_paths = save_and_verify_images(files, manga_dirname, chapter_dirname)
 
-        page_index = 1
-        for f in files:
-            if f and allowed_file(f.filename):
-                ext = f.filename.rsplit('.', 1)[1].lower()
-                new_name = f"{page_index:03d}.{ext}"
-                save_path = os.path.join(base_dir, new_name)
-                f.save(save_path)
-                rel_path = os.path.join(current_app.config.get('UPLOADS_DIR', 'uploads'),
-                                        'mangas', manga_dir, chapter_dir, new_name)
-                page = Page(chapter_id=chapter.id, page_number=page_index, image_path=rel_path)
-                db.session.add(page)
-                page_index += 1
+            # create Page rows in DB
+            page_number = 1
+            for rel in relative_paths:
+                p = Page(chapter_id=chapter.id, page_number=page_number, image_path=rel)
+                db.session.add(p)
+                page_number += 1
 
-        db.session.commit()
-        flash('Chapter added successfully.', 'success')
-        return redirect(url_for('manga.detail', slug=manga.slug))
+            # commit everything
+            db.session.commit()
 
+            # optional: create notifications for bookmarks - TODO
+            flash('Chapter uploaded successfully.', 'success')
+            return redirect(url_for('manga.detail', slug=manga.slug))
+
+        except Exception as e:
+            # rollback DB and notify the user
+            db.session.rollback()
+            # cleanup: save_and_verify_images already attempts to remove partial files on failure
+            current_app.logger.exception("Failed to upload chapter images")
+            flash(f'Failed to upload chapter: {e}', 'danger')
+            return redirect(request.url)
+
+    # GET
     return render_template('author/add_chapter.html', form=form, manga=manga)
