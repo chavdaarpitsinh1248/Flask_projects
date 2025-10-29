@@ -1,4 +1,4 @@
-# app/blueprints/auth/forms.py
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, FileField
 from wtforms.validators import DataRequired, Email, Length, Optional
