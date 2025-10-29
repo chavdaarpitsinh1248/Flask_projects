@@ -1,4 +1,4 @@
-# app/blueprints/author/routes.py
+
 import os
 import logging
 from pathlib import Path
@@ -13,7 +13,6 @@ from flask import (
     abort,
 )
 from flask_login import login_required, current_user
-from PIL import Image, UnidentifiedImageError
 
 from . import author_bp
 from .forms import AddMangaForm, AddChapterForm
@@ -24,6 +23,7 @@ from ...utils import (
     generate_unique_slug,
     allowed_file,
     save_and_verify_images,
+    save_single_image,
 )
 
 logger = logging.getLogger(__name__)
@@ -41,59 +41,6 @@ def make_manga_dirname(manga: Manga) -> str:
     author_username = getattr(manga.author, "username", f"user{manga.author_id}")
     name = f"{manga.slug}-{author_username}-{manga.id}"
     return secure_filename(name)
-
-
-def save_single_image(file_storage, target_dir: Path, filename: str) -> str:
-    """
-    Save and verify one image using Pillow. Returns the relative path to store in DB.
-    Raises ValueError on invalid files.
-    """
-    if not file_storage:
-        raise ValueError("No file provided.")
-
-    fname = file_storage.filename
-    if not fname or not allowed_file(fname):
-        raise ValueError("Invalid file extension for cover image.")
-
-    # ensure target_dir exists
-    target_dir.mkdir(parents=True, exist_ok=True)
-
-    ext = fname.rsplit(".", 1)[-1].lower()
-    safe_name = secure_filename(filename)
-    if not safe_name.lower().endswith(f".{ext}"):
-        safe_name = f"{safe_name}.{ext}"
-
-    abs_path = target_dir / safe_name
-
-    # save to temp path first
-    tmp_path = target_dir / (f".tmp_{safe_name}")
-    file_storage.save(str(tmp_path))
-
-    # verify with Pillow
-    try:
-        with Image.open(tmp_path) as im:
-            im.verify()  # raises if not a valid image
-        # Re-open and save cleanly (strip/normalize)
-        with Image.open(tmp_path) as im:
-            im.save(abs_path)
-    except (UnidentifiedImageError, OSError) as e:
-        try:
-            tmp_path.unlink()
-        except Exception:
-            pass
-        raise ValueError("Uploaded cover image is not a valid image.") from e
-    finally:
-        # remove tmp if exists
-        try:
-            if tmp_path.exists():
-                tmp_path.unlink()
-        except Exception:
-            pass
-
-    # return relative path for DB (use configured UPLOADS_DIR)
-    uploads_dir = current_app.config.get("UPLOADS_DIR", "uploads")
-    rel = os.path.join(uploads_dir, "mangas", target_dir.name, safe_name).replace("\\", "/")
-    return rel
 
 
 @author_bp.route("/manga/add", methods=["GET", "POST"])
@@ -129,9 +76,8 @@ def add_manga():
                 manga_dirname = make_manga_dirname(manga)
                 final_dir = Path(current_app.static_folder) / uploads_dir / "mangas" / manga_dirname
 
-                # use save_single_image helper; name cover as 'cover.<ext>'
-                cover_basename = f"cover"
-                rel_path = save_single_image(cover_file, final_dir, cover_basename)
+                # use save_single_image helper; name cover as 'cover'
+                rel_path = save_single_image(cover_file, final_dir, "cover")
                 manga.cover_image = rel_path
             except ValueError as ve:
                 db.session.rollback()
