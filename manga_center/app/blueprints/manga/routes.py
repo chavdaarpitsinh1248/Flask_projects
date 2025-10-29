@@ -1,60 +1,38 @@
 
-from flask import render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.urls import url_parse
-from . import auth_bp
-from .forms import LoginForm, RegisterForm, ProfileForm
+from flask import render_template, request, abort, url_for, redirect, flash
+from . import manga_bp
+from .forms import MangaSearchForm
+from ...models import Manga, Chapter, Page
 from ...extensions import db
-from ...models import User
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('manga.index'))
+@manga_bp.route('/')
+def index():
+    # simple listing (latest mangas)
+    page = request.args.get('page', 1, type=int)
+    mangas = Manga.query.order_by(Manga.created_at.desc()).paginate(page=page, per_page=20)
+    return render_template('manga/index.html', mangas=mangas)
 
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.lower()).first()
-        if user and user.check_password(form.password.data):
-            login_user(user)
-            next_page = request.args.get('next')
-            if not next_page or url_parse(next_page).netloc != '':
-                next_page = url_for('manga.index')
-            return redirect(next_page)
-        flash('Invalid email or password', 'danger')
-    return render_template('auth/login.html', form=form)
+@manga_bp.route('/manga/<slug>/')
+def detail(slug):
+    manga = Manga.query.filter_by(slug=slug).first_or_404()
+    chapters = manga.chapters.order_by(Chapter.number.desc()).all()
+    return render_template('manga/detail.html', manga=manga, chapters=chapters)
 
-@auth_bp.route('/register', methods=['GET', 'POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('manga.index'))
-    form = RegisterForm()
-    if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data.lower())
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('Account created. Please log in.', 'success')
-        return redirect(url_for('auth.login'))
-    return render_template('auth/register.html', form=form)
+@manga_bp.route('/manga/<slug>/chapter/<int:chapter_number>/')
+def read_chapter(slug, chapter_number):
+    manga = Manga.query.filter_by(slug=slug).first_or_404()
+    chapter = Chapter.query.filter_by(manga_id=manga.id, number=chapter_number).first_or_404()
+    pages = chapter.pages.order_by(Page.page_number).all()
+    # pages is a list of Page objects, each has image_path
+    return render_template('manga/read_chapter.html', manga=manga, chapter=chapter, pages=pages)
 
-@auth_bp.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash('You have been logged out.', 'info')
-    return redirect(url_for('manga.index'))
-
-@auth_bp.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile():
-    form = ProfileForm(obj=current_user)
-    if form.validate_on_submit():
-        # username change
-        if form.username.data:
-            current_user.username = form.username.data
-        # profile_pic handling will be done when we implement upload helpers
-        db.session.commit()
-        flash('Profile updated.', 'success')
-        return redirect(url_for('auth.profile'))
-    return render_template('auth/profile.html', form=form)
+@manga_bp.route('/search')
+def search():
+    q = request.args.get('q', '', type=str)
+    page = request.args.get('page', 1, type=int)
+    if q:
+        # very simple search: title ilike
+        items = Manga.query.filter(Manga.title.ilike(f"%{q}%")).paginate(page=page, per_page=20)
+    else:
+        items = Manga.query.order_by(Manga.created_at.desc()).paginate(page=page, per_page=20)
+    return render_template('manga/search.html', mangas=items, q=q)
