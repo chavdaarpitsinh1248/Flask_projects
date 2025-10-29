@@ -261,3 +261,34 @@ def save_and_verify_images(files: List,
             pass
         # re-raise so caller can decide what to do
         raise
+
+
+def save_profile_picture(file_storage, username: str) -> str:
+    """
+    Save and verify a user's profile picture.
+
+    - file_storage: werkzeug FileStorage object
+    - username: desired username (used for filename). Will be sanitized.
+
+    Returns: relative path to saved profile picture (e.g. 'uploads/profile_pic/arpit.png')
+    Raises: ValueError or RuntimeError on errors.
+    """
+    if not file_storage or not getattr(file_storage, 'filename', None):
+        raise ValueError("No profile picture provided.")
+
+    # determine uploads base and profile dir
+    app = current_app._get_current_object()
+    uploads_dir = app.config.get('UPLOADS_DIR', 'uploads')
+    profile_subdir = app.config.get('PROFILE_PICS_DIR', os.path.join(uploads_dir, 'profile_pic'))
+    # profile_subdir may be relative (uploads/profile_pic) - make absolute under static_folder
+    if os.path.isabs(profile_subdir):
+        target_dir = Path(profile_subdir)
+    else:
+        target_dir = Path(app.static_folder) / profile_subdir
+
+    # ensure sanitized base filename uses username (fallback to uuid)
+    safe_base = secure_filename(username) or uuid.uuid4().hex
+
+    rel_path = save_single_image(file_storage, target_dir, safe_base)
+    # save_single_image returns a path relative to static folder (or fallback construction)
+    return rel_path
