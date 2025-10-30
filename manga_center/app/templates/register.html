@@ -6,30 +6,30 @@
 <section class="auth">
     <h2>Create Account</h2>
 
-    <form action="{{ url_for('users.register') }}" method="post" class="register-form" novalidate>
+    <form method="post">
+        {{ form.hidden_tag() }}
         <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required placeholder="Choose a Username">
+            {{ form.username.label }} <br>
+            {{ form.username(size=32) }}
         </div>
 
         <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" name="email" id="email" required placeholder="Enter your Email">
+            {{ form.email.label }} <br>
+            {{ form.email(size=32) }}
         </div>
 
         <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required placeholder="Create a Password">
+            {{ form.password.label }} <br>
+            {{ form.passowrd(size=32) }}
         </div>
 
         <div class="form-group">
-            <label for="confirm-password">Confirm Password</label>
-            <input type="password" id="confirm-password" name="confirm-password" required
-                placeholder="Confirm your Password">
+            {{ form.confirm_password.label }} <br>
+            {{ form.confirm_passowrd(size=32) }}
         </div>
 
         <div class="form-action">
-            <button type="submit">Register</button>
+            {{ form.submit() }}
         </div>
     </form>
 
