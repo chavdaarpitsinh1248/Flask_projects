@@ -6,6 +6,17 @@
 <section class="auth">
     <h2>Create Account</h2>
 
+    {# show flash message #}
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class="flashes">
+        {% for msg in messages %}
+        <li>{{ msg }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
     <form method="post">
         {{ form.hidden_tag() }}
         <div class="form-group">
@@ -20,12 +31,12 @@
 
         <div class="form-group">
             {{ form.password.label }} <br>
-            {{ form.passowrd(size=32) }}
+            {{ form.password(size=32) }}
         </div>
 
         <div class="form-group">
             {{ form.confirm_password.label }} <br>
-            {{ form.confirm_passowrd(size=32) }}
+            {{ form.confirm_password(size=32) }}
         </div>
 
         <div class="form-action">
