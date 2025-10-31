@@ -8,21 +8,21 @@
     <form method="post">
         {{ form.hidden_tag() }}
 
-        <p>{{ from.username.label }}<br>
+        <p>{{ form.username.label }}<br>
             {{ form.username(size=32) }}<br>
             {% for error in form.username.errors %}
             <span style="color:red;">{{ error }}</span><br>
             {% endfor %}
         </p>
 
-        <p>{{ from.email.label }}<br>
+        <p>{{ form.email.label }}<br>
             {{ form.email(size=32) }}<br>
             {% for error in form.email.errors %}
             <span style="color:red;">{{ error }}</span><br>
             {% endfor %}
         </p>
 
-        <p>{{ from.pen_name.label }}<br>
+        <p>{{ form.pen_name.label }}<br>
             {{ form.pen_name(size=32) }}<br>
             {% for error in form.pen_name.errors %}
             <span style="color:red;">{{ error }}</span><br>
