@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}Admin Dashboard - Manga Center{% endblock %}
 
 {% block content %}
 <section class="admin-dashboard">
@@ -8,7 +8,7 @@
 
     <div class="admin-links">
         <ul>
-            <li><a href="#">View Users</a></li>
+            <li><a href="{{ url_for('admin.view_users') }}">View Users</a></li>
             <li><a href="#">View Authors</a></li>
             <li><a href="#">Manage Requests</a></li>
             <li><a href="#">Add New Author</a></li>
