@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}All Users - Admin Panel{% endblock %}
+
+{% block content %}
+<section class="user-list">
+    <h2>All Registered Users</h2>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Date Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.date_created.strtime('%Y-%m-%d %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+</section>
+{% endblock %}
