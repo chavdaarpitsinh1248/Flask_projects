@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Add Manga - Author Dashboard{% endblock %}
+
+{% block content %}
+<section class="add-manga">
+    <h2>Add New Manga</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+
+        <div>
+            {{ form.title.label }}<br>
+            {{ form.title(class="form-control") }}
+            {% for error in form.title.errors %}
+            <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div>
+            {{ form.description.label }}<br>
+            {{ form.description(class="form-control") }}
+            {% for error in form.description.errors %}
+            <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div>
+            {{ form.cover_image.label }}<br>
+            {{ form.cover_image(class="form-control") }}
+            {% for error in form.cover_image.errors %}
+            <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <br>
+        {{ form.submit(class="btn btn-primary") }}
+
+    </form>
+</section>
+{% endblock %}
