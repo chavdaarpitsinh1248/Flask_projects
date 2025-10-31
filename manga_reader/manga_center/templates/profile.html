@@ -1,4 +1,0 @@
-{% extends "base.html" %}
-{% if current_user.is_authenticated and current_user.role == "user" %}
-<a href="{{ url_for('user.request_studio') }}">Request to become Studio</a>
-{% endif %}
