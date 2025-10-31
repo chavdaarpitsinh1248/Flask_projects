@@ -101,4 +101,4 @@ def add_author():
         flash(f"Author '{form.pen_name.data}' added successfully!", "success")
         return redirect(url_for('admin.view_authors'))
     
-    return render_template('admin.add_author.html', form=form)
+    return render_template('admin/add_author.html', form=form)
