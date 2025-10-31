@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% end title %}Authors List - Admin Panel{% endblock %}
+
+{% block content %}
+<section class="authors-list">
+    <h2>All Authors</h2>
+
+    {% if authors %}
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Pen Name</th>
+                <th>Email</th>
+                <th>Joined On</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for author in authors %}
+            <tr>
+                <td>{{ author.id }}</td>
+                <td>{{ author.pen_name }}</td>
+                <td>{{ author.user.email }}</td>
+                <td>{{ author.joined_on.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <a href="{{ url_for('admin.remove_author', author_id=author.id) }}"
+                        onclick="return confirm('Are you sure you want to remove this author?');">
+                        Remove Author
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No authors found.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+</section>
+{% endblock %}
