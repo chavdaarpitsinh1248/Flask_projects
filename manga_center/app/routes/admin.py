@@ -1,7 +1,9 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
 from app.models import Admin, User, Author
+from app.forms.admin_forms import AddAuthorForm
+from werkzeug.security import generate_password_hash
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -58,3 +60,45 @@ def remove_author(author_id):
 
     flash(f"{username} is no longer an author.", "warning")
     return redirect(url_for('admin.view_authors'))
+
+#
+#
+#
+
+@admin_bp.route('/add_author', methods=["GET", "POST"])
+def add_author():
+    form = AddAuthorForm()
+    if form.validate_on_submit():
+        #Check if username or Email already exists
+        existing_user = User.query.filter(
+            (User.username == form.username.data) | (User.email == form.email.data)
+        ).first()
+
+        if existing_user:
+            flash("Username or Email already exists. Use another.", "danger")
+            return redirect(url_for('admin.add_author'))
+        
+        # Create User account for author
+        user = User(
+            username = form.username.data,
+            email = form.email.data,
+            password = generate_password_hash("default123")  # Default password
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+        # Create author profile
+        new_author = Author(
+            user_id = user.id,
+            pen_name = form.pen_name.data,
+            bio = form.bio.data
+        )
+
+        db.session.add(new_author)
+        db.session.commit()
+
+        flash(f"Author '{form.pen_name.data}' added successfully!", "success")
+        return redirect(url_for('admin.view_authors'))
+    
+    return render_template('admin.add_author.html', form=form)
