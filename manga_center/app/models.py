@@ -46,7 +46,7 @@ class Author(db.Model):
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.Foreign('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     role = db.Column(db.String(20), default='moderator')
     date_assigned = db.Column(db.DateTime, default=datetime.utcnow)
 
