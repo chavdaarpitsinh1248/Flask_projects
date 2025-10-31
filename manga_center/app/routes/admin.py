@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
-from app.models import Admin
+from app.models import Admin, User
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -15,3 +15,8 @@ def restrict_to_admins():
 @admin_bp.route('/')
 def dashboard():
     return render_template('admin/dashboard.html')
+
+@admin_bp.route('/users')
+def view_users():
+    users = User.query.all()
+    return render_template('admin/users.html', users=users)
