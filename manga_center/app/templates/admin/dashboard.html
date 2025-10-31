@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<section class="admin-dashboard">
+    <h2>Admin Dashborad</h2>
+    <p>Welcome, {{ current_user.username }} (Admin)</p>
+
+    <div class="admin-links">
+        <ul>
+            <li><a href="#">View Users</a></li>
+            <li><a href="#">View Authors</a></li>
+            <li><a href="#">Manage Requests</a></li>
+            <li><a href="#">Add New Author</a></li>
+        </ul>
+    </div>
+</section>
+
+{% endblock %}
