@@ -35,7 +35,7 @@ class Author(db.Model):
     bio = db.Column(db.Text, nullable=True)
     joined_on = db.Column(db.DateTime, default=datetime.utcnow)
 
-    user = db.relationship('User', backref='author_profile', lazy=True)
+    user = db.relationship('User', backref=db.backref('author_profile', uselist=False))
 
     def __repr__(self):
         return f"<Author {self.pen_name}>"
@@ -54,3 +54,23 @@ class Admin(db.Model):
 
     def __repr__(self):
         return f"<Admin {self.user.username} ({self.role})>"
+    
+# ---------------------------------
+#               MANGA
+# ---------------------------------
+
+class Manga(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    cover_image = db.Column(db.String(200), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Foreign key to Author
+    author_id = db.Column(db.Integer, db.ForeignKey('author.id'), nullable=False)
+
+    # Relationship back to auhtor
+    author = db.relationship('Author', backref=db.backref('mangas', lazy=True))
+
+    def __repr__(self):
+        return f"<Manga {self.title}>"

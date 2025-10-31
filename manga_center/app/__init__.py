@@ -22,10 +22,12 @@ def create_app():
     from app.routes.main import main_bp
     from app.routes.users import users_bp
     from app.routes.admin import admin_bp
+    from app.routes.author import author_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(author_bp)
 
     #Import Models to make sure they are register
     from app import models

@@ -11,6 +11,8 @@
                 <th>Username</th>
                 <th>Email</th>
                 <th>Date Created</th>
+                <th>Author?</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -20,6 +22,20 @@
                 <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    {% if user.author_profile %}
+                    ✅
+                    {% else %}
+                    ❌
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not user.author_profile %}
+                    <a href="{{ url_for('admin.make_author', user_id=user.id) }}">Make Author</a>
+                    {% else %}
+                    Already Author
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

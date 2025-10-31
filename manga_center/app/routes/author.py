@@ -26,8 +26,8 @@ def add_manga():
     form = MangaForm()
 
     if form.validate_on_submit():
-        title = form.title.data,
-        description = form.description.data,
+        title = form.title.data
+        description = form.description.data
         cover_image = None  # We'll add upload support later
 
         new_manga = Manga(
