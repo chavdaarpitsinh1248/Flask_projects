@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Author Dashboard - Manga Center{% endblock %}
+
+{% block content %}
+<section class="author-dashboard">
+    <h2>Author Dashboard</h2>
+    <p>Welcome, {{ current_user.author_profile.pen_name }}!</p>
+
+    <div class="author-actions">
+        <ul>
+            <li><a href="#">View My Manga</a></li>
+            <li><a href="#">Add New Manga</a></li>
+            <li><a href="#">Managa Chapters</a></li>
+            <li><a href="#">Edit Profile</a></li>
+        </ul>
+    </div>
+</section>
+{% endblock %}
