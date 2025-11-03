@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Add Chapter - {{ manga.title }}{% endblock %}
+
+{% block content %}
+<section class="add-chapter">
+    <h2>Add Chapter to {{ manga.title }}</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+
+        <div>
+            {{ form.title.label }}<br>
+            {{ form.title(size=50) }}
+        </div>
+
+        <div>
+            {{ form.number.label }}<br>
+            {{ form.number() }}
+        </div>
+
+        <div>
+            {{ form.content.label }}<br>
+            {{ form.content() }}
+        </div>
+
+        <div>
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</section>
+{% endblock %}
