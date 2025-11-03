@@ -172,3 +172,18 @@ def add_chapter(manga_id):
         return redirect(url_for('author.my_manga'))
     
     return render_template('author/add_chapter.html', form=form, manga=manga)
+
+# Chapter List
+@author_bp.route('/manga/<int:manga_id>/chapters')
+@login_required
+def view_chapters(manga_id):
+    manga = Manga.query.get_or_404(manga_id)
+
+    # Ensure only the manga's author can access it (for now)
+    if manga.author_id != current_user.author_profile.id:
+        flash("You are not authorized to view chapters of  this manga.", "danger")
+        return redirect(url_for('author.my_manga'))
+    
+    chapters = Chapter.query.filter_by(manga_id=manga.id).order_by(Chapter.number.asc()).all()
+
+    return render_template('author/view_chapter.html', manga=manga, chapters=chapters)
