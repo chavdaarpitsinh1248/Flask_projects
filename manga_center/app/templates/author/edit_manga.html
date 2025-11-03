@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Edit Manga - Manga Center{% endblock %}
+
+{% block content %}
+<section class="edit-manga">
+    <h2>Edit Manga</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+
+        <div class="cover-preview">
+            {% if manga.cover_image %}
+            <label for="coverUpload">
+                <img src="{{ url_for('static', filename='uploads/manga_cover_images/' + manga.cover_image) }}"
+                    alt="Cover" class="cover-image">
+            </label>
+            {% else %}
+            <label for="coverUpload">
+                <img src="{{ url_for('static', filename='default_cover.jpg') }}" alt="Cover" class="cover-image">
+            </label>
+            {% endif %}
+            {{ form.cover_image(id="coverUpload", style="display:none;") }}
+            <p>Click image to select a new cover</p>
+        </div>
+
+        <div>
+            {{ form.title.label }}<br>
+            {{ form.title(class="form-control") }}
+        </div>
+
+        <div>
+            {{ form.description.label }}<br>
+            {{ form.description(class="form-control", rows="4") }}
+        </div>
+        <br>
+        {{ form.submit(class="btn btn-success", value="Update Manga") }}
+    </form>
+
+    <form action="{{ url_for('author.delete_manga', manga_id=manga.id) }}" method="post" style="margin: 1rem;">
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this manga?');">Delete</button>
+    </form>
+</section>
+
+<style>
+    .cover-preview {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .cover-preview img.cover-image {
+        width: 200px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .cover-preview img.cover-image:hover {
+        opacity: 0.8;
+    }
+</style>
+{% endblock %}

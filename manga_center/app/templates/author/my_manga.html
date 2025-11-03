@@ -10,8 +10,8 @@
         {% for manga in mangas %}
         <div class="manga-card">
             {% if manga.cover_image %}
-            <img src="{{ url_for('static', filename='uploads/' + manga.cover_image) }}" alt="{{ manga.title }} cover"
-                width="120">
+            <img src="{{ url_for('static', filename='uploads/manga_cover_images/' + manga.cover_image) }}"
+                alt="{{ manga.title }} cover" width="120">
             {% else %}
             <img src="{{ url_for('static', filename='default_cover.jpg') }}" alt="No Cover" width="120">
             {% endif %}
@@ -21,8 +21,16 @@
 
             <!--Action Buttons-->
             <div class="actions">
-                <a href="#" class="btn btn-sm btn-secondary">Edit</a>
-                <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                <a href="{{ url_for('author.edit_manga', manga_id=manga.id) }}"
+                    class="btn btn-sm btn-secondary">Edit</a>
+
+                <form action="{{ url_for('author.delete_manga', manga_id=manga.id) }}" method="post"
+                    style="display: inline;">
+                    <button type="submit" class="btn btn-sm btn-danger"
+                        onclick="return confirm('Are you sure you want to delete this manga?');">
+                        Delete
+                    </button>
+                </form>
             </div>
         </div>
         {% endfor %}
