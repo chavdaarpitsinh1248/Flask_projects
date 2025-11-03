@@ -44,3 +44,10 @@ def add_manga():
         return redirect(url_for('author.dashboard'))
     
     return render_template('author/add_manga.html', form=form)
+
+# View all Manga from author
+@author_bp.route('/my_manga')
+def my_manga():
+    mangas = current_user.author_profile.mangas
+    return render_template('author/my_manga.html', mangas=mangas)
+

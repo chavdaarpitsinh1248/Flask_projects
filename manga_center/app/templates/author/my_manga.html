@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}My Manga - Author Dashboard{% endblock %}
+
+{% block content %}
+<section class="my-manga">
+    <h2>My Manga</h2>
+
+    {% if mangas %}
+    <div class="manga-list">
+        {% for manga in mangas %}
+        <div class="manga-card">
+            {% if manga.cover_image %}
+            <img src="{{ url_for('static', filename='uploads/' + manga.cover_image) }}" alt="{{ manga.title }} cover"
+                width="120">
+            {% else %}
+            <img src="{{ url_for('static', filename='default_cover.jpg') }}" alt="No Cover" width="120">
+            {% endif %}
+            <h4>{{ manga.tilte }}</h4>
+            <p>{{ manga.description[:120] }}{% if manga.description|length > 120 %}...{% endif %}</p>
+            <p><small>Created: {{ manga.created_at.strftime('%d %b %Y') }}</small></p>
+
+            <!--Action Buttons-->
+            <div class="actions">
+                <a href="#" class="btn btn-sm btn-secondary">Edit</a>
+                <a href="#" class="btn btn-sm btn-danger">Delete</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>You have't added any manga yet.</p>
+    <a href="{{ url_for('author.add_manga') }}" class="btn btn-primary">Add Manga</a>
+    {% endif %}
+</section>
+
+<style>
+    .manga-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minman(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .manga-card {
+        background: #f9f9f9;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .manga-card img {
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .actions {
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
