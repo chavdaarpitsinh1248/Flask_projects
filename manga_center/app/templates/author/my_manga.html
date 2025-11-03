@@ -15,7 +15,7 @@
             {% else %}
             <img src="{{ url_for('static', filename='default_cover.jpg') }}" alt="No Cover" width="120">
             {% endif %}
-            <h4>{{ manga.tilte }}</h4>
+            <h4>{{ manga.title }}</h4>
             <p>{{ manga.description[:120] }}{% if manga.description|length > 120 %}...{% endif %}</p>
             <p><small>Created: {{ manga.created_at.strftime('%d %b %Y') }}</small></p>
 
@@ -28,7 +28,7 @@
         {% endfor %}
     </div>
     {% else %}
-    <p>You have't added any manga yet.</p>
+    <p>You haven't added any manga yet.</p>
     <a href="{{ url_for('author.add_manga') }}" class="btn btn-primary">Add Manga</a>
     {% endif %}
 </section>
@@ -36,7 +36,7 @@
 <style>
     .manga-list {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minman(250px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 1.5rem;
     }
 
