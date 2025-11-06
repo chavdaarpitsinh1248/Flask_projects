@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, FileField, SubmitField, IntegerField
+from wtforms import StringField, TextAreaField, FileField, SubmitField, IntegerField, MultipleFileField
 from wtforms.validators import DataRequired, Length, NumberRange
 
 class MangaForm(FlaskForm):
@@ -11,5 +11,5 @@ class MangaForm(FlaskForm):
 class ChapterForm(FlaskForm):
     title = StringField("Chapter Title", validators=[DataRequired()])
     number = IntegerField("Chapter Number", validators=[DataRequired(), NumberRange(min=1)])
-    content = FileField("Upload Chapter (ZIP or Images)", validators=[DataRequired()])
+    content = MultipleFileField("Upload Chapter (ZIP or Images)", validators=[DataRequired()])
     submit = SubmitField("Add Chapter")

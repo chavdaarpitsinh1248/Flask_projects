@@ -8,7 +8,9 @@ public_bp = Blueprint('public', __name__, url_prefix='/')
 @public_bp.route('/')
 def index():
     mangas = Manga.query.all()
+    
     return render_template('public/index.html', mangas=mangas)
+
 
 # View manga's details (cover, description, chapters)
 @public_bp.route('/manga/<int:manga_id>')
@@ -28,7 +30,7 @@ def read_chapter(chapter_id):
         abort(404)
     
     image_files = sorted(
-        [f for f in os.listdir(chapter_folder) if f.lower().endswith('.png', '.jpg', '.jpeg', '.gif', '.webp')]
+        [f for f in os.listdir(chapter_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp'))]
     )
 
     image_urls = [

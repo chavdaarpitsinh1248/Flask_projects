@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ manga.title }} - Chapter {{ chapter.number }}{% endblock %}
+
+{% block content %}
+<section class="chapter-reader">
+    <h2>{{ manga.title }} - Chapter {{ chapter.number }}</h2>
+
+    <div style="text-align: center;">
+        {% for img in image_urls %}
+        <img src="{{ img }}" alt="Page {{ loop.index }}" style="max-width: 90%; margin: 10px 0;">
+        {% endfor %}
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="{{ url_for('public.view_manga', manga_id=manga.id) }}">⬅ Back to Manga</a>
+    </div>
+</section>
+{% endblock %}

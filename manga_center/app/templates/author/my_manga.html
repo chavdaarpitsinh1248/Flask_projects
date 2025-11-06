@@ -9,13 +9,15 @@
     <div class="manga-list">
         {% for manga in mangas %}
         <div class="manga-card">
-            {% if manga.cover_image %}
-            <img src="{{ url_for('static', filename='uploads/manga_cover_images/' + manga.cover_image) }}"
-                alt="{{ manga.title }} cover" width="120">
-            {% else %}
-            <img src="{{ url_for('static', filename='default_cover.jpg') }}" alt="No Cover" width="120">
-            {% endif %}
-            <h4>{{ manga.title }}</h4>
+            <a href="{{ url_for('author.view_chapters', manga_id=manga.id) }}" class="manga-link">
+                {% if manga.cover_image %}
+                <img src="{{ url_for('static', filename='uploads/manga_cover_images/' + manga.cover_image) }}"
+                    alt="{{ manga.title }} cover" width="120">
+                {% else %}
+                <img src="{{ url_for('static', filename='default_cover.jpg') }}" alt="No Cover" width="120">
+                {% endif %}
+                <h4>{{ manga.title }}</h4>
+            </a>
             <p>{{ manga.description[:120] }}{% if manga.description|length > 120 %}...{% endif %}</p>
             <p><small>Created: {{ manga.created_at.strftime('%d %b %Y') }}</small></p>
 

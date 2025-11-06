@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Manga Center - Home{% endblock %}
+
+{% block content %}
+<section class="manga-list">
+    <h2>All Manga</h2>
+
+    {% if mangas %}
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        {% for manga in mangas %}
+        <div style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; width: 200px; text-align: center;">
+            <a href="{{ url_for('public.view_manga', manga_id=manga.id) }}">
+                <img src="{{ manga.cover_url }}" alt="{{ manga.title }}"
+                    style="max-width: 100%; height: auto; border-radius: 5px;">
+            </a>
+            <h3>{{ manga.title }}</h3>
+            <p>{{ manga.description[:80] }}{% if manga.description|length > 80 %}...{% endif %}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No manga available yet.</p>
+    {% endif %}
+</section>
+{% endblock %}
