@@ -19,7 +19,7 @@ def create_app():
     # Ensure folders exist
     os.makedirs(app.config['COVER_UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(app.config['MANGA_FOLDER'], exist_ok=True)
-    os.makedirs(app.config['PROFILE_PIC_FOLdER'], exist_ok=True)
+    os.makedirs(app.config['PROFILE_PIC_FOLDER'], exist_ok=True)
 
 
     app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 #2MB limit
@@ -38,11 +38,13 @@ def create_app():
     from app.routes.users import users_bp
     from app.routes.admin import admin_bp
     from app.routes.author import author_bp
+    from app.routes.public import public_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(author_bp)
+    app.register_blueprint(public_bp)
 
     #Import Models to make sure they are register
     from app import models
