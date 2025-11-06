@@ -243,30 +243,47 @@ def edit_chapter(chapter_id):
     
     form = ChapterForm(obj=chapter)
 
+    # ---- Collect existing images ----
+    chapter_folder = os.path.join(current_app.root_path, chapter.content_path)
+    image_files = []
+    if os.path.exists(chapter_folder):
+        for img in os.listdir(chapter_folder):
+            if img.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+                rel_path = os.path.relpath(os.path.join(chapter.content_path, img), 'static').replace('\\', '/')
+                image_files.append(url_for('static', filename=rel_path))
+
+    # ---- Handle Form Submission ----
     if form.validate_on_submit():
         chapter.title = form.title.data
         chapter.number = form.number.data
 
         # Update images if new ones are uploaded
-        if form.images.data:
-            # Build chapter folder path
-            chapter_folder = os.path.join(current_app.root_path, chapter.content_path)
+        if form.content.data:
+            # Ensure folder exists
             os.makedirs(chapter_folder, exist_ok=True)
 
-            # Remove old images first (optional)
+            # Remove old images first
             for old_file in os.listdir(chapter_folder):
                 os.remove(os.path.join(chapter_folder, old_file))
 
             # Save New Images
-            for file in form.images.data:
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(chapter_folder, filename))
+            for file in form.content.data:
+                if file and file.filename:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(chapter_folder, filename))
 
         db.session.commit()
         flash('Chapter updated successfully!', "success")
         return redirect(url_for('author.view_chapters', manga_id=manga.id))
     
-    return render_template('author/edit_chapter.html', form=form, manga=manga, chapter=chapter)
+    return render_template(
+        'author/edit_chapter.html',
+        form=form,
+        manga=manga,
+        chapter=chapter,
+        image_files=image_files
+    )
+
 
 # Delete Chapter
 @author_bp.route('/delete_chapter/<int:chapter_id>', methods=['POST'])
