@@ -60,3 +60,12 @@ def read_chapter(chapter_id):
         next_chapter=next_chapter,
         prev_chapter=prev_chapter
     )
+
+@public_bp.route('/author/<int:author_id>')
+def view_author(author_id):
+    from app.models import Author  # local import to avoid circular imports
+
+    author = Author.query.get_or_404(author_id)
+    mangas = author.mangas  # all manga by this author
+
+    return render_template('public/view_author.html', author=author, mangas=mangas)
