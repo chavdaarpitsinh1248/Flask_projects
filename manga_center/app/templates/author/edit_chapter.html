@@ -21,19 +21,16 @@
         <div>
             <label>Current Images:</label>
             <div style="display: flex; flex-wrap: wrap;">
-                {% set chapter_folder = url_for('static', filename=os.path.relpath(chapter.content_path,
-                'static').replace('\\', '/')) %}
-                {% for img in os.listdir(os.path.join(current_app.root_path, chapter.content_path)) if
-                img.lower().endswith('.png', '.jpg', '.jpeg', '.gif', '.webp') %}
-                <img src="{{ url_for('static', filename=os.path.relpath(os.path.join(chapter.content_path, img), 'static').replace('\\', '/')) }}"
-                    alt="{{ img }}" style="max-height: 150px; margin: 5px;">
+                {% for img in image_files %}
+                <img src="{{ img }}" alt="{{ img }}" style="max-height: 150px; margin: 5px;">
                 {% endfor %}
             </div>
         </div>
 
+
         <div>
-            {{ form.images.label }}<br>
-            {{ form.images(class="form-control", multiple=True) }}
+            {{ form.content.label }}<br>
+            {{ form.content(class="form-control", multiple=True) }}
             <small>Upload new images to replace old ones.</small>
         </div>
 
