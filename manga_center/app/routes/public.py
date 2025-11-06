@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, abort, current_app
+from flask import Blueprint, render_template, redirect, url_for, abort, current_app, request
 from app.models import Manga, Chapter
 import os
 
@@ -69,3 +69,34 @@ def view_author(author_id):
     mangas = author.mangas  # all manga by this author
 
     return render_template('public/view_author.html', author=author, mangas=mangas)
+
+@public_bp.route('/manga')
+def all_manga():
+    from app.models import Manga, Author
+
+    search_query = request.args.get('search', '').strip()
+    author_filter = request.args.get('author', '').strip()
+
+    mangas = Manga.query
+
+    # --- Apply filters ---
+    if search_query:
+        mangas = mangas.filter(Manga.title.ilike(f'%{search_query}%'))
+
+    if author_filter:
+        mangas = mangas.join(Author).filter(
+            (Author.pen_name.ilike(f'%{author_filter}%')) |
+            (Author.user.has(username=author_filter))
+        )
+
+    mangas = mangas.order_by(Manga.created_at.desc()).all()
+
+    authors = Author.query.all()  # for dropdown list
+
+    return render_template(
+        'public/all_manga.html',
+        mangas=mangas,
+        authors=authors,
+        search_query=search_query,
+        author_filter=author_filter
+    )
