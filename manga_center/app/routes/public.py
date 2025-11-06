@@ -76,27 +76,34 @@ def all_manga():
 
     search_query = request.args.get('search', '').strip()
     author_filter = request.args.get('author', '').strip()
+    page = request.args.get('page', 1, type=int)
 
-    mangas = Manga.query
+    mangas_query = Manga.query
 
     # --- Apply filters ---
     if search_query:
-        mangas = mangas.filter(Manga.title.ilike(f'%{search_query}%'))
+        mangas_query = mangas_query.filter(Manga.title.ilike(f'%{search_query}%'))
 
     if author_filter:
-        mangas = mangas.join(Author).filter(
+        mangas_query = mangas_query.join(Author).filter(
             (Author.pen_name.ilike(f'%{author_filter}%')) |
             (Author.user.has(username=author_filter))
         )
 
-    mangas = mangas.order_by(Manga.created_at.desc()).all()
+    mangas_query = mangas_query.order_by(Manga.created_at.desc())
 
-    authors = Author.query.all()  # for dropdown list
+    # --- Pagination ---
+    per_page = 6  # number of manga per page
+    pagination = mangas_query.paginate(page=page, per_page=per_page, error_out=False)
+    mangas = pagination.items
+
+    authors = Author.query.all()
 
     return render_template(
         'public/all_manga.html',
         mangas=mangas,
         authors=authors,
         search_query=search_query,
-        author_filter=author_filter
+        author_filter=author_filter,
+        pagination=pagination
     )
