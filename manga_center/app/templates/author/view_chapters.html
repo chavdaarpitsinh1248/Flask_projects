@@ -26,8 +26,8 @@
                 </td>
                 <td>{{ chapter.upload_date.strftime('%Y-%m-%d') }}</td>
                 <td>
-                    <a href="#">Edit</a> |
-                    <a href="#">Delete</a>
+                    <a href="{{ url_for('author.edit_chapter', chapter_id=chapter.id )}}">Edit</a> |
+                    <a href="{{ url_for('author.delete_chapter', chapter_id=chapter.id )}}">Delete</a>
                 </td>
             </tr>
             {% endfor %}
