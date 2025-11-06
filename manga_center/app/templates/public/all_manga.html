@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}All Manga{% endblock %}
+
+{% block content %}
+<section class="manga-list">
+    <h2>All Manga</h2>
+
+    <!-- 🔍 Search + Filter Form -->
+    <form method="get" action="{{ url_for('public.all_manga') }}" style="margin-bottom: 20px;">
+        <input type="text" name="search" placeholder="Search manga by title..." value="{{ search_query }}"
+            style="padding: 8px;">
+        <select name="author" style="padding: 8px;">
+            <option value="">All Authors</option>
+            {% for author in authors %}
+            <option value="{{ author.pen_name or author.user.username }}" {% if author_filter==(author.pen_name or
+                author.user.username) %}selected{% endif %}>
+                {{ author.pen_name or author.user.username }}
+            </option>
+            {% endfor %}
+        </select>
+        <button type="submit" style="padding: 8px;">Search</button>
+    </form>
+
+    <!-- 🧾 Manga Results -->
+    {% if mangas %}
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        {% for manga in mangas %}
+        <div style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; width: 200px; text-align: center;">
+            <a href="{{ url_for('public.view_manga', manga_id=manga.id) }}">
+                <img src="{{ manga.cover_url }}" alt="{{ manga.title }}" style="max-width: 100%; border-radius: 5px;">
+            </a>
+            <h3>{{ manga.title }}</h3>
+            <p><small>by
+                    <a href="{{ url_for('public.view_author', author_id=manga.author.id) }}">
+                        {{ manga.author.pen_name or manga.author.user.username }}
+                    </a>
+                </small></p>
+            <p>{{ manga.description[:80] }}{% if manga.description|length > 80 %}...{% endif %}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No manga found matching your search or filter.</p>
+    {% endif %}
+</section>
+{% endblock %}
