@@ -139,9 +139,13 @@ def add_chapter(manga_id):
 
     if form.validate_on_submit():
         # Create chapter entry
+        #Find the last chapter number of this manga 
+        last_chapter = Chapter.query.filter_by(manga_id=manga.id).order_by(Chapter.number.desc()).first()
+        next_number = 1 if not last_chapter else last_chapter.number + 1
+
         chapter = Chapter(
             title=form.title.data,
-            number=form.number.data,
+            number=next_number,
             manga_id=manga.id
         )
         db.session.add(chapter)
@@ -149,20 +153,25 @@ def add_chapter(manga_id):
 
         # Folder structure: static/uploads/manga/<manga_folder>/chapter_<id>/
         manga_folder = ensure_manga_folder(current_app, manga)
-        chapter_folder = os.path.join(manga_folder, f"chapter_{chapter.id}")
+        chapter_folder = os.path.join(manga_folder, f"chapter_{chapter.number}")
         os.makedirs(chapter_folder, exist_ok=True)
 
-        # Handle uploaded file ZIP or image
-        file = form.content.data
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(chapter_folder, filename)
-        file.save(file_path)
+        # Handle multiple image uploads
+        uploaded_files = request.files.getlist("content")
+        image_count = 0
+        for file in uploaded_files:
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(chapter_folder, filename)
+                file.save(file_path)
+                image_count += 1
 
-        # If ZIP, extract it inside the folder
-        if filename.lower().endswith('.zip'):
-            with zipfile.ZipFile(file_path, 'r') as zip_ref:
-                zip_ref.extractall(chapter_folder)
-            os.remove(file_path) # remove zip after extracting
+        if image_count == 0:
+            flash("No images uploaded. Please select atleast one.", "warning")
+            db.session.delete(chapter)
+            db.session.commit()
+            return redirect(url_for('author.add_chapter', manga_id=manga.id))
+        
 
         # Update chapter record
         chapter.content_path = os.path.relpath(chapter_folder, current_app.root_path)
@@ -186,4 +195,4 @@ def view_chapters(manga_id):
     
     chapters = Chapter.query.filter_by(manga_id=manga.id).order_by(Chapter.number.asc()).all()
 
-    return render_template('author/view_chapter.html', manga=manga, chapters=chapters)
+    return render_template('author/view_chapters.html', manga=manga, chapters=chapters)
