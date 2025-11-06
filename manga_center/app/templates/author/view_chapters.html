@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ manga.title }}{% endblock %}
+
+{% block content %}
+<section class="chapter-list">
+    <h2>Chapters for "{{ manga.title }}"</h2>
+
+    {% if chapters %}
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>Number</th>
+                <th>Title</th>
+                <th>Upload Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for chapter in chapters %}
+            <tr>
+                <td>{{ chapter.number }}</td>
+                <td>
+                    <a href="{{ url_for('author.read_chapter', chapter_id=chapter.id) }}">
+                        {{ chapter.title }}
+                    </a>
+                </td>
+                <td>{{ chapter.upload_date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <a href="#">Edit</a> |
+                    <a href="#">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No chapters have been added.</p>
+    {% endif %}
+
+    <a href="{{ url_for('author.add_chapter', manga_id=manga.id) }}">➕ Add New Chapter</a><br>
+    <a href="{{ url_for('author.my_manga') }}">⬅ Back to My Manga</a>
+</section>
+{% endblock %}
