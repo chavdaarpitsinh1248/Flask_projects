@@ -2,20 +2,30 @@
 {% block title %}{{ manga.title }}{% endblock %}
 
 {% block content %}
-<section class="view-manga" style="text-align: center;">
+<section class="view-manga">
     <h2>{{ manga.title }}</h2>
 
     <img src="{{ manga.cover_url }}" alt="{{ manga.title }}"
         style="max-width: 200px; border-radius: 10px; margin-bottom: 10px;">
 
-    <p style="max-width: 600px; margin: 0 auto;">{{ manga.description }}</p>
+    <!-- Author Info -->
+    <p>
+        <strong>Author:</strong>
+        <a href="{{ url_for('public.view_author', author_id=manga.author.id) }}">
+            {{ manga.author.user.username }}
+            {% if manga.author.pen_name %}
+            ({{ manga.author.pen_name }})
+            {% endif %}
+        </a>
+    </p>
 
-    <h3 style="margin-top: 20px;">Chapters</h3>
+    <p>{{ manga.description }}</p>
 
+    <h3>Chapters</h3>
     {% if chapters %}
-    <ul style="list-style: none; padding: 0;">
+    <ul>
         {% for chapter in chapters %}
-        <li style="margin: 5px 0;">
+        <li>
             <a href="{{ url_for('public.read_chapter', chapter_id=chapter.id) }}">
                 Chapter {{ chapter.number }}: {{ chapter.title }}
             </a>
