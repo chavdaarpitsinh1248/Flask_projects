@@ -196,3 +196,35 @@ def view_chapters(manga_id):
     chapters = Chapter.query.filter_by(manga_id=manga.id).order_by(Chapter.number.asc()).all()
 
     return render_template('author/view_chapters.html', manga=manga, chapters=chapters)
+
+# Read Chapter
+@author_bp.route('/chapter/<chapter_id>')
+@login_required
+def read_chapter(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    manga = chapter.manga
+
+    # Chapter permission (author view for now)
+    if manga.author_id != current_user.author_profile.id:
+        flash("You are not authorized to read this chapter.", "danger")
+        return redirect(url_for('author.my_manga'))
+    
+    # Build full path to the chapter folder
+    chapter_folder = os.path.join(current_app.root_path, chapter.content_path)
+
+    # Collect all image files from that folder
+    if not os.path.exists(chapter_folder):
+        flash("Chapter folder not found.", "danger")
+        return redirect(url_for('author.view_chapters', manga_id=manga.id))
+    
+    image_files = sorted(
+        [f for f in os.listdir(chapter_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp'))]
+    )
+
+    image_urls = [
+        url_for('static', filename=os.path.relpath(os.path.join(chapter.content_path, img), 'static').replace('\\','/'))
+        for img in image_files
+    ]
+
+
+    return render_template('author/read_chapter.html', manga=manga, chapter=chapter, image_urls=image_urls)
