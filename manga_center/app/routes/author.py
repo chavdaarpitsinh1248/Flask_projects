@@ -228,3 +228,65 @@ def read_chapter(chapter_id):
 
 
     return render_template('author/read_chapter.html', manga=manga, chapter=chapter, image_urls=image_urls)
+
+# Edit Chapter
+@author_bp.route('/edit_chapter/<int:chapter_id>', methods=['GET', 'POST'])
+@login_required
+def edit_chapter(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    manga = chapter.manga
+
+    # Only the author of this manga can edit
+    if manga.author_id != current_user.author_profile.id:
+        flash("You are not authorized to edit this chapter.", "danger")
+        return redirect(url_for('author.view_chapters', manga_id=manga.id))
+    
+    form = ChapterForm(obj=chapter)
+
+    if form.validate_on_submit():
+        chapter.title = form.title.data
+        chapter.number = form.number.data
+
+        # Update images if new ones are uploaded
+        if form.images.data:
+            # Build chapter folder path
+            chapter_folder = os.path.join(current_app.root_path, chapter.content_path)
+            os.makedirs(chapter_folder, exist_ok=True)
+
+            # Remove old images first (optional)
+            for old_file in os.listdir(chapter_folder):
+                os.remove(os.path.join(chapter_folder, old_file))
+
+            # Save New Images
+            for file in form.images.data:
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(chapter_folder, filename))
+
+        db.session.commit()
+        flash('Chapter updated successfully!', "success")
+        return redirect(url_for('author.view_chapters', manga_id=manga.id))
+    
+    return render_template('author/edit_chapter.html', form=form, manga=manga, chapter=chapter)
+
+# Delete Chapter
+@author_bp.route('/delete_chapter/<int:chapter_id>', methods=['POST'])
+@login_required
+def delete_chapter(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    manga = chapter.manga
+
+    if manga.author_id != current_user.author_profile.id:
+        flash("You are not authorized to delete this chapter.", "danger")
+        return redirect(url_for('author.view_chapters', manga_id=manga.id))
+    
+    # Remove chapter folder and files
+    chapter_folder = os.path.join(current_app.root_path, chapter.content_path)
+    if os.path.exists(chapter_folder):
+        import shutil
+        shutil.rmtree(chapter_folder)
+
+    db.session.delete(chapter)
+    db.session.commit()
+
+    flash('Chapter deleted successfully!', "success")
+    return redirect(url_for('author.view_chapters', manga_id=manga.id))
