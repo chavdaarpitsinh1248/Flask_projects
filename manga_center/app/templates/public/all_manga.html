@@ -44,32 +44,6 @@
     {% endif %}
 
     <!-- 📄 Pagination Controls -->
-    {% if pagination.pages > 1 %}
-    <div style="text-align:center; margin-top:20px;">
-        {% if pagination.has_prev %}
-        <a
-            href="{{ url_for('public.all_manga', page=pagination.prev_num, search=search_query, author=author_filter) }}">&laquo;
-            Prev</a>
-        {% endif %}
-
-        {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-        {% if p %}
-        {% if p == pagination.page %}
-        <strong>[{{ p }}]</strong>
-        {% else %}
-        <a href="{{ url_for('public.all_manga', page=p, search=search_query, author=author_filter) }}">{{ p }}</a>
-        {% endif %}
-        {% else %}
-        ...
-        {% endif %}
-        {% endfor %}
-
-        {% if pagination.has_next %}
-        <a
-            href="{{ url_for('public.all_manga', page=pagination.next_num, search=search_query, author=author_filter) }}">Next
-            &raquo;</a>
-        {% endif %}
-    </div>
-    {% endif %}
+    {% include "components/pagination.html" %}
 </section>
 {% endblock %}
