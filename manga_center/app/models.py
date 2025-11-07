@@ -127,3 +127,21 @@ class AuthorRequest(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship('User', backref=db.backref('author_request', uselist=False))
+
+# ---------------------------------
+#               BOOKMARK
+# ---------------------------------
+
+class Bookmark(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    manga_id = db.Column(db.Integer, db.ForeignKey('manga.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('bookmarks', lazy=True, cascade="all, delete-orphan"))
+    manga = db.relationship('Manga', backref=db.backref('bookmarked_by', lazy=True, cascade="all, delete-orphan"))
+
+    __table_args__ = (db.UniqueConstraint('user_id', 'manga_id', name='_user_manga_uc'),)
+
+    def __repr__(self):
+        return f"<Bookmark User:{self.user_id} Manga:{self.manga_id}>"
