@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Author Requests - Admin{% endblock %}
+
+{% block content %}
+<section class="admin-requests">
+    <h2>Pending Author Requests</h2>
+
+    {% if requests %}
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td>{{ req.user.username }}</td>
+                <td>{{ req.message or '-' }}</td>
+                <td>{{ req.status|capitalize }}</td>
+                <td>{{ req.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if req.status == 'pending' %}
+                    <a href="{{ url_for('admin.approve_author', request_id=req.id) }}"
+                        class="btn btn-success">Approve</a>|
+                    <a href="{{ url_for('admin.reject_author', request_id=req.id) }}" class="btn btn-danger">Reject</a>
+                    {% else %}
+                    <em>{{ req.status|capitalize }}</em>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No author requests.</p>
+    {% endif %}
+</section>
+{% endblock %}
