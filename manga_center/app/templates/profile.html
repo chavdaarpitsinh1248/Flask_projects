@@ -11,9 +11,6 @@
     <p><strong>Username:</strong> {{ user.username }}</p>
     <p><strong>Email:</strong> {{ user.email }}</p>
 
-    {% if user.author_profile %}
-    <p><strong>Author Pen Name:</strong> {{ user.author_profile.pen_name }}</p>
-    {% endif %}
 
     {% if not user.author_profile %}
     {% if user.author_request and user.author_request.status == 'pending' %}
@@ -26,7 +23,7 @@
     {% endif %}
 
     {% else %}
-    <p><strong>Author Pen Name:</strong>{{ user.author_pofile.pen_name }}</p>
+    <p><strong>Author Pen Name:</strong>{{ user.author_profile.pen_name }}</p>
     {% endif %}
 
 </section>
