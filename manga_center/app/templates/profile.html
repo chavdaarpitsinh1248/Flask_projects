@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <h2>Profile</h2>
+
+    <a href="{{ url_for('users.edit_profile') }}">Edit Profile</a>
+    <img src="{{ user.profile_pic_url }}" alt="Profile Picture" style="width:150px; border-radius:50%;">
+
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+
+    {% if user.author_profile %}
+    <p><strong>Author Pen Name:</strong> {{ user.author_profile.pen_name }}</p>
+    {% endif %}
+
+    {% if not user.author_profile %}
+    {% if user.author_request and user.author_request.status == 'pending' %}
+    <p><strong>Author Request Status:</strong> Pending</p>
+    {% elif user.author_request and user.author_request.status == 'Rejected' %}
+    <p><strong>Author Request Status:</strong> Rejected</p>
+    <a href="{{ url_for('users.request_author') }}">Reapply</a>
+    {% else %}
+    <a href="{{ url_for('users.request_author') }}" class="btn btn-seconary">Request Author Role</a>
+    {% endif %}
+
+    {% else %}
+    <p><strong>Author Pen Name:</strong>{{ user.author_pofile.pen_name }}</p>
+    {% endif %}
+
+</section>
+{% endblock %}
