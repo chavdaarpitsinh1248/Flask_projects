@@ -8,7 +8,7 @@ from flask_login import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from app import db
-from app.models import User, AuthorRequest
+from app.models import User, AuthorRequest, Bookmark, Manga
 from app.forms.login_form import LoginForm
 from app.forms.register_form import RegisterForm
 from app.forms.user_form import ProfileForm, AuthorRequestForm
@@ -156,3 +156,33 @@ def request_author():
         flash('Your author request has been submitted Successfully!', 'success')
         return redirect(url_for('users.profile'))
     return render_template('users/request_author.html', form=form)
+
+# ---------------------------------
+#               BOOKMARK
+# ---------------------------------
+@users_bp.route('/bookmark/<int:manga_id>', methods=['POST'])
+@login_required
+def toogle_bookmark(manga_id):
+    manga = Manga.query.get_or_404(manga_id)
+    bookmark = Bookmark.query.filter_by(user_id=current_user.id, manga_id=manga_id).first()
+
+    if bookmark:
+        db.session.delete(bookmark)
+        db.session.commit()
+        flash(f"Removed {manga.title} from your bookmarks.", "info")
+    else:
+        new_bookmark = Bookmark(user_id=current_user.id, manga_id=manga_id)
+        db.session.add(new_bookmark)
+        db.session.commit()
+        flash(f'Added {manga.title} to your bookmarks', 'success')
+
+    return redirect(request.referrer or url_for('public.index'))
+
+# --------------------------------------
+#               MY LIBRARY PAGE
+# --------------------------------------
+@users_bp.route('/my_library')
+@login_required
+def my_library():
+    bookmarks = Bookmark.query.filter_by(user_id=current_user.id).order_by(Bookmark.created_at.desc()).all()
+    return render_template('users/my_library.html', bookmarks=bookmarks)
