@@ -14,17 +14,24 @@ def load_user(user_id):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(25), unique=True, nullable = False)
+    username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    password = db.Column(db.String(200), nullable=False)
+    profile_pic = db.Column(db.String(200), nullable=True)  # NEW FIELD
+    is_admin = db.Column(db.Boolean, default=False) # admin or not
 
-    #Relationship
     #author_profile = db.relationship('Author', backref='user', uselist=False)
-    #admin_profile = db.relationship('Admin', backref='user', uselist=False)
+
+    @property
+    def profile_pic_url(self):
+        if self.profile_pic:
+            filename = os.path.basename(self.profile_pic)
+            return url_for('static', filename=f'uploads/profile_pics/{filename}')
+        return url_for('static', filename='images/default_user.png')
 
     def __repr__(self):
-        return f"<User {self.username}>"
+        return f'<User {self.username}>'
+
     
 # ---------------------------------
 #               AUTHOR
@@ -88,6 +95,11 @@ class Manga(db.Model):
     def __repr__(self):
         return f"<Manga {self.title}>"
     
+
+# ---------------------------------
+#               CHAPTER
+# ---------------------------------
+    
 class Chapter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
@@ -101,3 +113,17 @@ class Chapter(db.Model):
 
     def __repr__(self):
         return f"<Chapter {self.title} (Manga ID: {self.manga_id})>"
+    
+
+# --------------------------------------
+#               AUTHOR REQUEST
+# --------------------------------------
+
+class AuthorRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    message = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), default="pending")
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('author_request', uselist=False))
