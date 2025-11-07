@@ -146,7 +146,7 @@ def request_author():
     
     form = AuthorRequestForm()
     if form.validate_on_submit():
-        new_request = AuthorRequestForm(
+        new_request = AuthorRequest(
             user_id = current_user.id,
             message = form.message.data.strip(),
             status = 'pending'
