@@ -11,7 +11,7 @@
         <img src="{{ b.manga.cover_url }}" alt="{{ b.manga.title }}" style="max-width: 150px;">
         <h3><a href="{{ url_for('public.view_manga', manga_id=b.manga.id) }}">{{ b.manga.title }}</a></h3>
         <p>by {{ b.manga.author.pen_name }}</p>
-        <form method="post" action="{{ url_for('users.toogle_bookmark', manga_id=b.manga.id) }}">
+        <form method="post" action="{{ url_for('users.toggle_bookmark', manga_id=b.manga.id) }}">
             <button type="submit" class="btn btn-danger">Remove</button>
         </form>
     </div>
