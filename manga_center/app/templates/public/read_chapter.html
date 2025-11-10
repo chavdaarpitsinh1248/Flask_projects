@@ -55,6 +55,89 @@
 </section>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const chapterId = {{ chapter.id }
+    };
+    const list = dosument.getElementById("comments-list");
 
+    function loadComments() {
+        fetch(`/comments/${chapterId}`)
+            .then(res => res.json())
+            .then(data => {
+                list.innerHTML = renderComments(data);
+            });
+    }
+
+    function renderComments(comments) {
+        return comments.map(c => `
+          <div class="comment">
+            <p class="meta">
+                <a href="/user/${c.user_id}">
+                    ${c.pen_name ? c.pen_name : c.username}
+                    ${c.is_author ? '<span class="auhtor-tag">AUTHOR</span>' : ''}
+                </a>
+                <small>${c.created_at}</small>
+            </p>
+            <p>${c.content}</p>
+            <button class="reply-btn" data-id="${c.id}">Reply</button>
+            <div class="replies">${renderComments(c.replies || [])}</div>
+          </div>
+        `).join("");
+    }
+
+    document.getElementById("submit-comment")?.addEventListener("click", () => {
+        const content = document.getElementById("comment-content").value.trim();
+        if (!content) return showToast("Comment cannot be empty", "warning");
+
+        fetch("/comments/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content, chapter_id: chapterId })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    showToast("Comment added", "success");
+                    document.getElementById("comment-content").value = "";
+                    loadContents();
+                } else {
+                    showToast("Failed to add comment", "error");
+                }
+            });
+    });
+
+    // Reply handler
+    list.addEventListener("click", (e) => {
+        if (e.target.classList.contains("reply-btn")) {
+            const parentId = e.target.dataset.id;
+            const box = document.createElement("div");
+            box.innerHTML = `
+                <textarea class="reply-input" placeholder="Write a reply..."></textarea>
+                <button class="send-reply" data-parent="${parentId}">Send</button>
+            `;
+            e.target.after(box);
+        } else if (e.target.classList.contains("send-reply")) {
+            const parentId = e.target.dataset.parent;
+            const content = e.target.previousElementSibling.value.trim();
+            if (!content) return showToast("Reply cannot be empty", "warning");
+
+            fetch("/comments/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content, chapter_id: chapter_id, parent_id: parentId })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        showToast("Reply Added", "success");
+                        loadComments();
+                    } else {
+                        showToast("Failed to reply", "error");
+                    }
+                });
+        }
+    });
+    loadComments();
+});
 </script>
 {% endblock %}
