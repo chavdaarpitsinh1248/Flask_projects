@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, abort, current_app, request
 from flask_login import current_user
-from app.models import Manga, Chapter
+from app.models import Manga, Chapter, Bookmark
 import os
 
 public_bp = Blueprint('public', __name__, url_prefix='/')
@@ -21,7 +21,8 @@ def view_manga(manga_id):
 
     is_bookmarked = False
     if current_user.is_authenticated:
-        is_bookmarked = any(b.manga_id == manga.id for b in current_user.bookmarks)
+        bookmark = Bookmark.query.filter_by(user_id=current_user.id, manga_id=manga_id).first()
+        is_bookmarked = bookmark is not None
     return render_template('public/view_manga.html', manga=manga, chapters=chapters, is_bookmarked=is_bookmarked)
 
 # read specific chapter
