@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, redirect, url_for, flash,
+    Blueprint, render_template, redirect, url_for, flash, jsonify,
     request, current_app
 )
 from flask_login import (
@@ -166,25 +166,23 @@ def toggle_bookmark(manga_id):
     manga = Manga.query.get_or_404(manga_id)
     bookmark = Bookmark.query.filter_by(user_id=current_user.id, manga_id=manga_id).first()
 
-    action = None
     if bookmark:
         db.session.delete(bookmark)
         db.session.commit()
-        action="Removed"
-        
+        action = "removed"
     else:
         new_bookmark = Bookmark(user_id=current_user.id, manga_id=manga_id)
         db.session.add(new_bookmark)
         db.session.commit()
-        action="added"
-    
-    # Return JSON if AJAX request
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return {"status": "success", "action": action, "manga_id": manga_id}
-    # Fallback for normal form submissions
-    flash(f"Manga Bookmark {action}", "info" )
-    return redirect(request.referrer or url_for('public.index'))
+        action = "added"
 
+    # If AJAX request, return JSON
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"status": "success", "action": action, "manga_id": manga_id})
+
+    # Else normal form submit → redirect with flash
+    flash(f"Manga bookmark {action}.", "info")
+    return redirect(request.referrer or url_for('public.index'))
 
 # --------------------------------------
 #               MY LIBRARY PAGE

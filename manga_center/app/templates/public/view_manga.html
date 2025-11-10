@@ -21,8 +21,8 @@
             btn.addEventListener('click', async () => {
                 const mangaId = btn.dataset.mangaId;
                 try {
-                    const res = await fetch('/bookmark/${mangaId}', {
-                        method: Post,
+                    const res = await fetch(`/bookmark/${mangaId}`, {
+                        method: "POST",
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                             'X-CSRFToken': '{{ csrf_token() }}'
@@ -32,9 +32,13 @@
                     if (data.status === 'success') {
                         if (data.action === 'added') {
                             btn.textContent = '★ Remove Bookmark';
+                            showToast("Added to your Library!", "success");
+
                             btn.dataset.isBookmarked = 'true';
                         } else {
                             btn.textContent = '☆ Add to Bookmarks';
+                            showToast("Removed from your Library!", "info");
+
                             btn.dataset.isBookmarked = 'false';
                         }
                     } else if (data.status === 'error') {
@@ -46,6 +50,8 @@
             });
         });
     </script>
+    {% else %}
+    <a href="{{ url_for('users.login') }}" class="btn btn-outline-primary">Bookmark</a>
     {% endif %}
 
     <!-- Author Info -->

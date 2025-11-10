@@ -48,7 +48,7 @@
         <button id="submit-comment" data-chapter-id="{{ chapter.id }}">Post</button>
     </div>
     {% else %}
-    <p><a href="{{ url_for('auth.login') }}">Login</a> to comment.</p>
+    <p><a href="{{ url_for('users.login') }}">Login</a> to comment.</p>
     {% endif %}
 
     <div id="comments-list"></div>
@@ -56,9 +56,9 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const chapterId = {{ chapter.id }
-    };
-    const list = dosument.getElementById("comments-list");
+        const chapterId = {{ chapter.id | tojson
+    }};
+    const list = document.getElementById("comments-list");
 
     function loadComments() {
         fetch(`/comments/${chapterId}`)
@@ -74,7 +74,7 @@
             <p class="meta">
                 <a href="/user/${c.user_id}">
                     ${c.pen_name ? c.pen_name : c.username}
-                    ${c.is_author ? '<span class="auhtor-tag">AUTHOR</span>' : ''}
+                    ${c.is_author ? '<span class="author-tag">AUTHOR</span>' : ''}
                 </a>
                 <small>${c.created_at}</small>
             </p>
@@ -99,7 +99,7 @@
                 if (data.status === "success") {
                     showToast("Comment added", "success");
                     document.getElementById("comment-content").value = "";
-                    loadContents();
+                    loadComments();
                 } else {
                     showToast("Failed to add comment", "error");
                 }
@@ -124,7 +124,7 @@
             fetch("/comments/add", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content, chapter_id: chapter_id, parent_id: parentId })
+                body: JSON.stringify({ content, chapter_id: chapterId, parent_id: parentId })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -137,7 +137,9 @@
                 });
         }
     });
+
     loadComments();
 });
 </script>
+
 {% endblock %}
