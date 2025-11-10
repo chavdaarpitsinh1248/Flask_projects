@@ -145,3 +145,22 @@ class Bookmark(db.Model):
 
     def __repr__(self):
         return f"<Bookmark User:{self.user_id} Manga:{self.manga_id}>"
+
+# ---------------------------------
+#               COMMENT
+# ---------------------------------
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    manga_id = db.Column(db.Integer, db.ForeignKey('manga.id'), nullable=False)
+    chapter_id = db.Column(db.Integer, db.ForeignKey('chapter.id'), nullable=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
+
+    # relationship
+    user = db.relationship('User', backref=db.backref('comments', lazy=True))
+    replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True)
