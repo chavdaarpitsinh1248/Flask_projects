@@ -9,7 +9,7 @@
         style="max-width: 200px; border-radius: 10px; margin-bottom: 10px;">
 
     {% if current_user.is_authenticated %}
-    <form method="post" action="{{ url_for('users.toogle_bookmark', manga_id=manga.id) }}">
+    <form method="post" action="{{ url_for('users.toggle_bookmark', manga_id=manga.id) }}">
         {% if is_bookmarked %}
         <button type="submit" class="btn btn-warning">Remove Bookmark</button>
         {% else %}
