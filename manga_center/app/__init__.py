@@ -41,6 +41,7 @@ def create_app():
     from app.routes.admin import admin_bp
     from app.routes.author import author_bp
     from app.routes.public import public_bp
+    from app.routes.comments import comment_bp
     
 
     app.register_blueprint(main_bp)
@@ -48,6 +49,7 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(author_bp)
     app.register_blueprint(public_bp)
+    app.register_blueprint(comment_bp)
 
     from app import models  # make sure models are imported
     from flask_wtf.csrf import generate_csrf
