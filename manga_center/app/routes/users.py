@@ -162,7 +162,7 @@ def request_author():
 # ---------------------------------
 @users_bp.route('/bookmark/<int:manga_id>', methods=['POST'])
 @login_required
-def toogle_bookmark(manga_id):
+def toggle_bookmark(manga_id):
     manga = Manga.query.get_or_404(manga_id)
     bookmark = Bookmark.query.filter_by(user_id=current_user.id, manga_id=manga_id).first()
 
