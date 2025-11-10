@@ -1,0 +1,37 @@
+/* Toast Notification Styles */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.toast {
+    background-color: #333;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 8px;
+    min-width: 200px;
+    max-width: 300px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s ease;
+    font-size: 0.95rem;
+}
+
+/* Appear Animation */
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Different Categories */
+.toast-success { background-color: #28a745; } /* Green */
+.toast-info { background-color: #17a2b8; } /* Blue */
+.toast-warning { background-color: #ffc107; color: #222; } /* Yellow */
+.toast-danger, .toast-error { background-color: #dc3545; } /* Red */
