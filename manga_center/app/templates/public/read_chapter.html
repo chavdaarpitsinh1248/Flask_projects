@@ -38,4 +38,23 @@
     </div>
 
 </section>
+
+<section id="comments-section">
+    <h3>Comments</h3>
+
+    {% if current_user.is_authenticated %}
+    <div id="new-comment">
+        <textarea id="comment-content" placeholder="Write a comment..."></textarea>
+        <button id="submit-comment" data-chapter-id="{{ chapter.id }}">Post</button>
+    </div>
+    {% else %}
+    <p><a href="{{ url_for('auth.login') }}">Login</a> to comment.</p>
+    {% endif %}
+
+    <div id="comments-list"></div>
+</section>
+
+<script>
+
+</script>
 {% endblock %}
