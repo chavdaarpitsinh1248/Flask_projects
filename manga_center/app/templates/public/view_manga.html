@@ -7,7 +7,17 @@
 
     <img src="{{ manga.cover_url }}" alt="{{ manga.title }}"
         style="max-width: 200px; border-radius: 10px; margin-bottom: 10px;">
-
+    <div>
+        {% if current_user.is_authenticated %}
+        <form method="post" action="{{ url_for('user.toggle_bookmark', manga_id=manga_id) }}">
+            {% if manga in [ b.manga for b in current_user.bookmarks ] %}
+            <button type="submit" class="btn btn-warning">Remove Bookmark</button>
+            {% else %}
+            <button type="submit" class="btn btn-outline-warning">Add to Bookmarks</button>
+            {% endif %}
+        </form>
+        {% endif %}
+    </div>
     <!-- Author Info -->
     <p>
         <strong>Author:</strong>
