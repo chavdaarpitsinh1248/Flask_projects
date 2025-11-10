@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, abort, current_app, request
+from flask_login import current_user
 from app.models import Manga, Chapter
 import os
 
@@ -17,7 +18,11 @@ def index():
 def view_manga(manga_id):
     manga = Manga.query.get_or_404(manga_id)
     chapters = Chapter.query.filter_by(manga_id=manga_id).order_by(Chapter.number).all()
-    return render_template('public/view_manga.html', manga=manga, chapters=chapters)
+
+    is_bookmarked = False
+    if current_user.is_authenticated:
+        is_bookmarked = any(b.manga_id == manga.id for b in current_user.bookmarks)
+    return render_template('public/view_manga.html', manga=manga, chapters=chapters, is_bookmarked=is_bookmarked)
 
 # read specific chapter
 @public_bp.route('/read/<int:chapter_id>')
