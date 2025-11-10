@@ -166,17 +166,25 @@ def toggle_bookmark(manga_id):
     manga = Manga.query.get_or_404(manga_id)
     bookmark = Bookmark.query.filter_by(user_id=current_user.id, manga_id=manga_id).first()
 
+    action = None
     if bookmark:
         db.session.delete(bookmark)
         db.session.commit()
-        flash(f"Removed {manga.title} from your bookmarks.", "info")
+        action="Removed"
+        
     else:
         new_bookmark = Bookmark(user_id=current_user.id, manga_id=manga_id)
         db.session.add(new_bookmark)
         db.session.commit()
-        flash(f'Added {manga.title} to your bookmarks', 'success')
-
+        action="added"
+    
+    # Return JSON if AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return {"status": "success", "action": action, "manga_id": manga_id}
+    # Fallback for normal form submissions
+    flash(f"Manga Bookmark {action}", "info" )
     return redirect(request.referrer or url_for('public.index'))
+
 
 # --------------------------------------
 #               MY LIBRARY PAGE
