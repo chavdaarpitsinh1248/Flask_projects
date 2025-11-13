@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div>
+    <button id="mark-all-read" class="btn btn-sm btn-outline-secondary mb-3">Mark All as Read</button>
+
+</div>
+<section class="notifications-section container mt-4">
+    <h2>Your Notifications</h2>
+    {% if not notifications %}
+    <p class="text-muted">You have no notifications yet.</p>
+    {% endif %}
+
+    {% include "components/notifications.html" %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (!notifContainer) return;
+
+        const notifContainer = document.querySelector(".notifications-list");
+
+        // MARK READ button
+        notifContainer.addEventListener("click", async (e) => {
+            if (e.target.classList.contains("mark-read-btn")) {
+                const btn = e.target;
+                const notifId = btn.dataset.id;
+
+                try {
+                    const res = await fetch(`/notifications/${notifId}/mark_read`, {
+                        method: "POST",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    const data = await res.json();
+                    if (data.success) {
+                        const card = btn.closest(".notification-card");
+                        card.classList.remove("unread");
+                        btn.remove(); // remove the "mark read" button
+                    } else {
+                        alert(data.error || "Failed to mark as read.");
+                    }
+                } catch (err) {
+                    console.error("Error:", err);
+                }
+            }
+        });
+
+        // DELETE button
+        notifContainer.addEventListener("click", async (e) => {
+            if (e.target.classList.contains("delete-btn")) {
+                const btn = e.target;
+                const notifId = btn.dataset.id;
+                if (!confirm("Delete this notification?")) return;
+
+                try {
+                    const res = await fetch(`/notifications/${notifId}/delete`, {
+                        method: "POST",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    const data = await res.json();
+                    if (data.success) {
+                        const card = btn.closest(".notification-card");
+                        card.remove();
+                    } else {
+                        alert(data.error || "Failed to delete notification.");
+                    }
+                } catch (err) {
+                    console.error("Error:", err);
+                }
+            }
+        });
+
+        // MARK ALL READ (optional button if you add it)
+        const markAllBtn = document.querySelector("#mark-all-read");
+        if (markAllBtn) {
+            markAllBtn.addEventListener("click", async () => {
+                try {
+                    const res = await fetch("/notifications/mark_all_read", {
+                        method: "POST",
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        document.querySelectorAll(".notification-card.unread")
+                            .forEach(c => c.classList.remove("unread"));
+                        document.querySelectorAll(".mark-read-btn").forEach(btn => btn.remove());
+                    }
+                } catch (err) {
+                    console.error("Error:", err);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

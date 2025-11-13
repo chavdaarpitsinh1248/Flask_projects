@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Search Results{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-3">Results for "{{ query }}"</h3>
+
+    <div class="d-flex justify-content-between mb-3">
+        <select id="filter-select" class="form-select w-25">
+            <option value="latest">Latest</option>
+            <option value="bookmarked">Most Bookmarked</option>
+            <option value="liked">Most Liked</option>
+        </select>
+    </div>
+
+    <div id="manga-results">
+        {% include 'partials/_manga_cards.html' %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const filterSelect = document.getElementById('filter-select');
+        const mangaResults = document.getElementById('manga-results');
+
+        function updateResults() {
+            const filter = filterSelect.value;
+            const query = new URLSearchParams(window.location.search).get('q') || '';
+
+            fetch(`/search?q=${encodeURIComponent(query)}&filter=${filter}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    mangaResults.innerHTML = data.html;
+                });
+        }
+
+        filterSelect.addEventListener('change', updateResults);
+    });
+</script>
+{% endblock %}

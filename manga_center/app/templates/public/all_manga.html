@@ -43,7 +43,9 @@
     <p>No manga found matching your search or filter.</p>
     {% endif %}
 
-    <!-- 📄 Pagination Controls -->
+    {% if pagination is defined %}
     {% include "components/pagination.html" %}
+    {% endif %}
+
 </section>
 {% endblock %}

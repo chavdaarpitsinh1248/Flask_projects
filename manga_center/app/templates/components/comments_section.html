@@ -1,0 +1,73 @@
+<div id="comments-section" data-manga-id="{{ manga.id }}">
+    <!-- Comment Form -->
+    {% if current_user.is_authenticated %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-chat-left-text"></i> Add a Comment</h5>
+            <form id="comment-form" data-chapter-id="{{ chapter.id }}" data-csrf="{{ form.csrf_token._value() }}">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.content(class="form-control", rows=3, placeholder="Write your comment about this
+                    chapter...") }}
+                </div>
+                {{ form.submit(class="btn btn-primary mt-2") }}
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <p><a href="{{ url_for('users.login') }}">Login</a> to add a comment on this chapter.</p>
+    {% endif %}
+
+    <!-- Comment List -->
+    <h4 class="mb-3"><i class="bi bi-chat-dots"></i> Comments</h4>
+
+    {# --- Macro to render comments recursively --- #}
+    {% macro render_comment(comment, level=0) %}
+    <li class="list-group-item ms-{{ level * 4 }}" id="comment-{{ comment.id }}" data-id="{{ comment.id }}" {# ✅ Added
+        dataset for JS #} data-user="{{ comment.user.username }}">
+
+        <strong>{{ comment.user.username }}</strong>:
+        <span class="comment-content">{{ comment.content }}</span><br>
+
+        {# Use consistent timestamp formatting #}
+        <small class="text-muted">
+            {{ comment.created_at.strftime("%Y-%m-%d %H:%M") }}
+        </small>
+
+        {% if current_user.is_authenticated %}
+        <div class="mt-1">
+            <button class="btn btn-sm btn-link reply-btn" data-id="{{ comment.id }}">
+                Reply
+            </button>
+
+            {% if comment.user == current_user %}
+            <button class="btn btn-sm btn-link edit-comment" data-id="{{ comment.id }}">
+                Edit
+            </button>
+            <button class="btn btn-sm btn-link text-danger delete-comment" data-id="{{ comment.id }}">
+                Delete
+            </button>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Reply form container -->
+        <div class="reply-form-container" id="reply-form-{{ comment.id }}"></div>
+
+        {% if comment.replies_sorted %}
+        <ul class="list-group mt-2">
+            {% for reply in comment.replies_sorted %}
+            {{ render_comment(reply, level + 1) }}
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </li>
+    {% endmacro %}
+
+    <!-- Render all top-level comments -->
+    <ul id="comment-list" class="list-group mb-4">
+        {% for comment in comments %}
+        {{ render_comment(comment) }}
+        {% endfor %}
+    </ul>
+</div>

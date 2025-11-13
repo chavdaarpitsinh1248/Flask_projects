@@ -2,24 +2,71 @@
 {% block title %}Manga Center - Home{% endblock %}
 
 {% block content %}
-<section class="manga-list">
-    <h2>All Manga</h2>
+<div class="container my-4">
+    <h2 class="mb-4 text-center">📚 Latest Updated Mangas</h2>
 
     {% if mangas %}
-    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    <div class="row g-4">
         {% for manga in mangas %}
-        <div style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; width: 200px; text-align: center;">
-            <a href="{{ url_for('public.view_manga', manga_id=manga.id) }}">
-                <img src="{{ manga.cover_url }}" alt="{{ manga.title }}"
-                    style="max-width: 100%; height: auto; border-radius: 5px;">
-            </a>
-            <h3>{{ manga.title }}</h3>
-            <p>{{ manga.description[:80] }}{% if manga.description|length > 80 %}...{% endif %}</p>
+        <div class="col-6 col-md-3">
+            <div class="card h-100 shadow-sm border-0">
+                <a href="{{ url_for('public.view_manga', manga_id=manga.id) }}" class="text-decoration-none text-dark">
+                    <img src="{{ manga.cover_url }}" class="card-img-top" alt="{{ manga.title }}">
+                    <div class="card-body">
+                        <h6 class="card-title text-center text-truncate">{{ manga.title }}</h6>
+                        <p class="text-center text-muted small">
+                            Last updated:
+                            {% set last_chapter = manga.chapters | sort(attribute='upload_date') | last %}
+                            {% if last_chapter %}
+                            {{ last_chapter.upload_date.strftime("%b %d, %Y") }}
+                            {% else %}
+                            No chapters yet
+                            {% endif %}
+                        </p>
+
+                    </div>
+
+                </a>
+            </div>
         </div>
         {% endfor %}
     </div>
+
+    <!-- Pagination -->
+    <nav class="mt-4 d-flex justify-content-center">
+        <ul class="pagination">
+            {% if pagination.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('public.index', page=pagination.prev_num) }}">&laquo; Prev</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">&laquo; Prev</span></li>
+            {% endif %}
+
+            {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if p %}
+            {% if p == pagination.page %}
+            <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+            {% else %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('public.index', page=p) }}">{{ p }}</a></li>
+            {% endif %}
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% endif %}
+            {% endfor %}
+
+            {% if pagination.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('public.index', page=pagination.next_num) }}">Next &raquo;</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+
     {% else %}
-    <p>No manga available yet.</p>
+    <p class="text-center text-muted">No manga available yet.</p>
     {% endif %}
-</section>
+</div>
 {% endblock %}

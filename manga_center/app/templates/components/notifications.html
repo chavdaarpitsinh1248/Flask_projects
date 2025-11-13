@@ -1,0 +1,25 @@
+<div class="notifications-list">
+    {% if notifications and notifications|length > 0 %}
+    {% for n in notifications %}
+    <div class="notification-card {% if not n.is_read %}unread{% endif %}" data-id="{{ n.id }}">
+        <div class="notif-content">
+            <p class="notif-message">{{ n.message }}</p>
+            {% if n.link %}
+            <a href="{{ n.link }}" class="notif-link">View</a>
+            {% endif %}
+        </div>
+        <div class="notif-meta">
+            <small class="notif-time">{{ n.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+            <div class="notif-actions">
+                {% if not n.is_read %}
+                <button class="btn btn-sm btn-outline-primary mark-read-btn" data-id="{{ n.id }}">Mark Read</button>
+                {% endif %}
+                <button class="btn btn-sm btn-outline-danger delete-btn" data-id="{{ n.id }}">Delete</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted text-center mt-3">No notifications yet.</p>
+    {% endif %}
+</div>

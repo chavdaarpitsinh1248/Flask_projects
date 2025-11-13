@@ -1,16 +1,32 @@
 from flask import Blueprint, render_template, redirect, url_for, abort, current_app, request
 from flask_login import current_user
-from app.models import Manga, Chapter, Bookmark
+from app.models import Manga, Chapter, Bookmark, Comment
 import os
+from app import db
+from app.forms.comment_form import CommentForm
+from sqlalchemy import func, desc
+
 
 public_bp = Blueprint('public', __name__, url_prefix='/')
 
 # HomePage - list all Mangas
 @public_bp.route('/')
 def index():
-    mangas = Manga.query.all()
-    
-    return render_template('public/index.html', mangas=mangas)
+    page = request.args.get('page', 1, type=int)
+    per_page = 20  # 4 per row × 5 rows
+
+    # Sort mangas by latest uploaded chapter
+    mangas_query = (
+        db.session.query(Manga)
+        .outerjoin(Chapter)
+        .group_by(Manga.id)
+        .order_by(func.max(Chapter.upload_date).desc().nullslast())
+    )
+
+    pagination = mangas_query.paginate(page=page, per_page=per_page, error_out=False)
+    mangas = pagination.items
+
+    return render_template('public/index.html', mangas=mangas, pagination=pagination)
 
 
 # View manga's details (cover, description, chapters)
@@ -30,6 +46,24 @@ def view_manga(manga_id):
 def read_chapter(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)
     manga = chapter.manga
+    
+    # top-level comments (no parent) ordered desc
+    top_comments = Comment.query.filter_by(
+        chapter_id=chapter_id, parent_id=None
+    ).order_by(Comment.created_at.desc()).all()
+
+    # For each top-level comment, fetch its replies ordered asc and attach to the object
+    for c in top_comments:
+        # Query replies for this comment, ordered by created_at ascending
+        replies = Comment.query.filter_by(parent_id=c.id).order_by(Comment.created_at.asc()).all()
+        # Attach prepared list to attribute used in template
+        c.replies_sorted = replies
+
+        # If you want deeper nesting (replies to replies), you can repeat recursively
+        # or build a recursive helper function to attach replies_sorted for each reply.
+
+
+    form = CommentForm()
 
     # Get all chapters of this manga in order
     chapters = Chapter.query.filter_by(manga_id=manga.id).order_by(Chapter.number).all()
@@ -62,6 +96,8 @@ def read_chapter(chapter_id):
         'public/read_chapter.html',
         manga=manga,
         chapter=chapter,
+        comments=top_comments,
+        form=form,
         image_urls=image_urls,
         next_chapter=next_chapter,
         prev_chapter=prev_chapter
@@ -113,3 +149,21 @@ def all_manga():
         author_filter=author_filter,
         pagination=pagination
     )
+
+@public_bp.route('/search')
+def search():
+    q = request.args.get('q', '')
+    mangas = Manga.query.filter(Manga.title.ilike(f"%{q}%")).all() if q else []
+    return render_template('public/search_results.html', mangas=mangas, query=q)
+
+@public_bp.route('/genre/<genre_name>')
+def genre(genre_name):
+    page = request.args.get('page', 1, type=int)
+    mangas = Manga.query.filter(Manga.genre.ilike(f'%{genre_name}%')) \
+                        .order_by(Manga.id.desc()) \
+                        .paginate(page=page, per_page=20)
+    return render_template('public/genre.html',
+                           genre=genre_name.capitalize(),
+                           mangas=mangas.items,
+                           pagination=mangas)
+

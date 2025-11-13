@@ -1,0 +1,16 @@
+<div class="row">
+    {% for manga in mangas %}
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm h-100">
+            <img src="{{ manga.cover_url }}" class="card-img-top" alt="{{ manga.title }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ manga.title }}</h5>
+                <p class="card-text text-muted">By {{ manga.author.pen_name }}</p>
+                <a href="{{ url_for('public.view_manga', manga_id=manga.id) }}" class="btn btn-sm btn-primary">Read</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-center text-muted">No manga found.</p>
+    {% endfor %}
+</div>
