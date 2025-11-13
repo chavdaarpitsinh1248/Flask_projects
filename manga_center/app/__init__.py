@@ -4,10 +4,12 @@ from flask_login import LoginManager
 import os
 from flask_migrate import Migrate
 from flask_wtf import CSRFProtect
+from flask_moment import Moment
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 csrf = CSRFProtect()
+moment = Moment()
 
 def create_app():
     app = Flask(__name__, static_folder='static')
@@ -32,6 +34,7 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     migrate = Migrate(app, db)
+    moment.init_app(app)
 
     login_manager.login_view = 'users.login'
     login_manager.login_message_category = 'info'
@@ -42,7 +45,7 @@ def create_app():
     from app.routes.author import author_bp
     from app.routes.public import public_bp
     from app.routes.comments import comment_bp
-    
+    from app.routes.notif import notif_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(users_bp)
@@ -50,6 +53,7 @@ def create_app():
     app.register_blueprint(author_bp)
     app.register_blueprint(public_bp)
     app.register_blueprint(comment_bp)
+    app.register_blueprint(notif_bp)
 
     from app import models  # make sure models are imported
     from flask_wtf.csrf import generate_csrf
