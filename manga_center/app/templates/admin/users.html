@@ -2,45 +2,142 @@
 {% block title %}All Users - Admin Panel{% endblock %}
 
 {% block content %}
-<section class="user-list">
-    <h2>All Registered Users</h2>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Date Created</th>
-                <th>Author?</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>
-                    {% if user.author_profile %}
-                    ✅
-                    {% else %}
-                    ❌
-                    {% endif %}
-                </td>
-                <td>
-                    {% if not user.author_profile %}
-                    <a href="{{ url_for('admin.make_author', user_id=user.id) }}">Make Author</a>
-                    {% else %}
-                    Already Author
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <br>
-    <a href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+<section class="user-list container my-4">
+
+    <h2 class="mb-3">All Registered Users</h2>
+
+    {% if users %}
+    <div class="table-wrapper">
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Date Created</th>
+                    <th>Author?</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+
+                    <td>
+                        {% if user.date_created %}
+                        {{ user.date_created.strftime('%Y-%m-%d %H:%M') }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if user.author_profile %}
+                        <span class="status yes">Yes</span>
+                        {% else %}
+                        <span class="status no">No</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if not user.author_profile %}
+                        <a class="btn-action" href="{{ url_for('admin.make_author', user_id=user.id) }}">
+                            Make Author
+                        </a>
+                        {% else %}
+                        <span class="text-muted">Already Author</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <p>No users found.</p>
+    {% endif %}
+
+    <a href="{{ url_for('admin.dashboard') }}" class="back-btn">⬅ Back to Dashboard</a>
+
 </section>
+
+<style>
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .styled-table thead {
+        background: #4a90e2;
+        color: #fff;
+        text-align: left;
+    }
+
+    .styled-table th,
+    .styled-table td {
+        padding: 12px 15px;
+        font-size: 15px;
+    }
+
+    .styled-table tbody tr {
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .styled-table tbody tr:hover {
+        background: #f5faff;
+    }
+
+    .status {
+        padding: 4px 10px;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .status.yes {
+        background: #28a745;
+    }
+
+    .status.no {
+        background: #dc3545;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        background: #4a90e2;
+        color: #fff;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+    .btn-action:hover {
+        background: #357ac8;
+    }
+
+    .back-btn {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 8px 14px;
+        border-radius: 6px;
+        background: #333;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .back-btn:hover {
+        background: #000;
+    }
+</style>
 {% endblock %}
