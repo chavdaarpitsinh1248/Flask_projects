@@ -130,7 +130,7 @@ def delete_manga(manga_id):
 def add_chapter(manga_id):
     manga = Manga.query.get_or_404(manga_id)
 
-    # ensure only the author who owns this manga can add chapters
+    # Ensure only author can add chapter
     if manga.author_id != current_user.author_profile.id:
         flash('You are not authorized to add chapters to this manga.', "danger")
         return redirect(url_for('author.my_manga'))
@@ -138,48 +138,55 @@ def add_chapter(manga_id):
     form = ChapterForm()
 
     if form.validate_on_submit():
-        # Create chapter entry
-        #Find the last chapter number of this manga 
-        last_chapter = Chapter.query.filter_by(manga_id=manga.id).order_by(Chapter.number.desc()).first()
+        # Auto-increment chapter number
+        last_chapter = Chapter.query.filter_by(manga_id=manga.id)\
+                         .order_by(Chapter.number.desc()).first()
         next_number = 1 if not last_chapter else last_chapter.number + 1
 
+        # Create DB entry first to get chapter.id
         chapter = Chapter(
             title=form.title.data,
             number=next_number,
             manga_id=manga.id
         )
         db.session.add(chapter)
-        db.session.commit() # commit to generate chapter.id
+        db.session.commit()  # chapter.id is generated here
 
-        # Folder structure: static/uploads/manga/<manga_folder>/chapter_<id>/
+        # Create folder: static/uploads/manga/<folder>/chapter_<number>/
         manga_folder = ensure_manga_folder(current_app, manga)
         chapter_folder = os.path.join(manga_folder, f"chapter_{chapter.number}")
         os.makedirs(chapter_folder, exist_ok=True)
 
-        # Handle multiple image uploads
         uploaded_files = request.files.getlist("content")
-        image_count = 0
+        image_index = 1
+        saved_any_image = False
+
         for file in uploaded_files:
             if file and file.filename:
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(chapter_folder, filename)
-                file.save(file_path)
-                image_count += 1
+                saved_any_image = True
+                ext = os.path.splitext(secure_filename(file.filename))[1]  # .jpg, .png etc.
 
-        if image_count == 0:
+                # NEW NAME FORMAT → mangaID_chapterID_imageNumber.ext
+                new_filename = f"{manga.id}_{chapter.id}_{image_index}{ext}"
+
+                file_path = os.path.join(chapter_folder, new_filename)
+                file.save(file_path)
+
+                image_index += 1
+
+        if not saved_any_image:
             flash("No images uploaded. Please select atleast one.", "warning")
             db.session.delete(chapter)
             db.session.commit()
             return redirect(url_for('author.add_chapter', manga_id=manga.id))
-        
 
-        # Update chapter record
+        # Save relative path for frontend consumption
         chapter.content_path = os.path.relpath(chapter_folder, current_app.root_path)
         db.session.commit()
 
         flash(f"Chapter '{chapter.title}' added successfully!", "success")
         return redirect(url_for('author.my_manga'))
-    
+
     return render_template('author/add_chapter.html', form=form, manga=manga)
 
 # Chapter List
