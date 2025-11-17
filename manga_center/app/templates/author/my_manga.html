@@ -2,69 +2,151 @@
 {% block title %}My Manga - Author Dashboard{% endblock %}
 
 {% block content %}
-<section class="my-manga">
-    <h2>My Manga</h2>
+<section class="my-manga container py-4">
+
+    <h2 class="mb-4 fw-bold">📘 My Manga</h2>
 
     {% if mangas %}
-    <div class="manga-list">
+    <div class="manga-grid">
+
         {% for manga in mangas %}
         <div class="manga-card">
-            <a href="{{ url_for('author.view_chapters', manga_id=manga.id) }}" class="manga-link">
-                {% if manga.cover_image %}
-                <img src="{{ url_for('static', filename='uploads/manga_cover_images/' + manga.cover_image) }}"
-                    alt="{{ manga.title }} cover" width="120">
-                {% else %}
-                <img src="{{ url_for('static', filename='default_cover.jpg') }}" alt="No Cover" width="120">
-                {% endif %}
-                <h4>{{ manga.title }}</h4>
+
+            <!-- Cover -->
+            <a href="{{ url_for('author.view_chapters', manga_id=manga.id) }}" class="manga-thumb">
+                <img src="{% if manga.cover_image %}{{ url_for('static', filename='uploads/manga_cover_images/' + manga.cover_image) }}{% else %}{{ url_for('static', filename='default_cover.jpg') }}{% endif %}"
+                    alt="{{ manga.title }} cover">
             </a>
-            <p>{{ manga.description[:120] }}{% if manga.description|length > 120 %}...{% endif %}</p>
-            <p><small>Created: {{ manga.created_at.strftime('%d %b %Y') }}</small></p>
 
-            <!--Action Buttons-->
-            <div class="actions">
-                <a href="{{ url_for('author.edit_manga', manga_id=manga.id) }}"
-                    class="btn btn-sm btn-secondary">Edit</a>
+            <!-- Title -->
+            <h4 class="manga-title text-truncate">
+                <a href="{{ url_for('author.view_chapters', manga_id=manga.id) }}">
+                    {{ manga.title }}
+                </a>
+            </h4>
 
+            <!-- Short description -->
+            <p class="desc text-muted">
+                {{ manga.description[:110] }}{% if manga.description|length > 110 %}...{% endif %}
+            </p>
+
+            <p class="created text-secondary small mb-2">
+                Created: {{ manga.created_at.strftime('%d %b %Y') }}
+            </p>
+
+            <!-- Buttons -->
+            <div class="actions d-flex justify-content-center gap-3">
+
+                <!-- Edit Icon -->
+                <a href="{{ url_for('author.edit_manga', manga_id=manga.id) }}" class="action-icon text-primary"
+                    title="Edit Manga">
+                    <i class="bi bi-pencil-square fs-5"></i>
+                </a>
+
+                <!-- Delete Icon -->
                 <form action="{{ url_for('author.delete_manga', manga_id=manga.id) }}" method="post"
-                    style="display: inline;">
-                    <button type="submit" class="btn btn-sm btn-danger"
-                        onclick="return confirm('Are you sure you want to delete this manga?');">
-                        Delete
+                    onsubmit="return confirm('Are you sure you want to delete this manga?');">
+
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <button type="submit" class="action-icon text-danger" title="Delete Manga">
+                        <i class="bi bi-trash fs-5"></i>
                     </button>
                 </form>
+
+
             </div>
+
+
         </div>
         {% endfor %}
+
     </div>
+
     {% else %}
-    <p>You haven't added any manga yet.</p>
+    <p class="text-muted">You haven't added any manga yet.</p>
     <a href="{{ url_for('author.add_manga') }}" class="btn btn-primary">Add Manga</a>
     {% endif %}
+
 </section>
 
 <style>
-    .manga-list {
+    /* --- GRID LAYOUT --- */
+    .manga-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 1.8rem;
     }
 
+    /* --- CARD --- */
     .manga-card {
-        background: #f9f9f9;
+        background: #ffffff;
+        border-radius: 12px;
         padding: 1rem;
-        border-radius: 10px;
-        text-align: center;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
     }
 
-    .manga-card img {
-        border-radius: 8px;
+    .manga-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    }
+
+    /* --- COVER IMAGE --- */
+    .manga-thumb img {
+        width: 100%;
+        height: 270px;
+        object-fit: cover;
+        border-radius: 10px;
         margin-bottom: 10px;
     }
 
-    .actions {
-        margin-top: 10px;
+    /* --- TITLE --- */
+    .manga-title a {
+        color: #222;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .manga-title a:hover {
+        color: #0d6efd;
+    }
+
+    /* --- DESCRIPTION --- */
+    .desc {
+        min-height: 50px;
+        font-size: 0.9rem;
+    }
+
+    /* --- ACTION BUTTONS --- */
+    .action-row .btn {
+        width: 20%;
+    }
+
+    .action-icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.3rem;
+        transition: 0.2s ease;
+    }
+
+    .action-icon:hover {
+        transform: scale(1.15);
+        opacity: 0.8;
+    }
+
+    .manga-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1rem;
+        transition: 0.2s;
+    }
+
+    .manga-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     }
 </style>
+
 {% endblock %}
