@@ -5,7 +5,7 @@ import os
 from app import db
 from app.forms.comment_form import CommentForm
 from sqlalchemy import func, desc
-
+from datetime import datetime
 
 public_bp = Blueprint('public', __name__, url_prefix='/')
 
