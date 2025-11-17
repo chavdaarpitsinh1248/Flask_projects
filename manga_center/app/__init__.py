@@ -11,6 +11,36 @@ login_manager = LoginManager()
 csrf = CSRFProtect()
 moment = Moment()
 
+
+from datetime import datetime
+
+def timeago(time):
+    if not time:
+        return ""
+        
+    now = datetime.utcnow()
+    diff = now - time
+    seconds = diff.total_seconds()
+
+    if seconds < 60:
+        return "just now"
+    elif seconds < 3600:
+        minutes = int(seconds // 60)
+        return f"{minutes} minute{'s' if minutes > 1 else ''} ago"
+    elif seconds < 86400:
+        hours = int(seconds // 3600)
+        return f"{hours} hour{'s' if hours > 1 else ''} ago"
+    elif seconds < 2592000:
+        days = int(seconds // 86400)
+        return f"{days} day{'s' if days > 1 else ''} ago"
+    else:
+        months = int(seconds // 2592000)
+        return f"{months} month{'s' if months > 1 else ''} ago"
+
+
+
+
+
 def create_app():
     app = Flask(__name__, static_folder='static')
 
@@ -46,6 +76,7 @@ def create_app():
     from app.routes.public import public_bp
     from app.routes.comments import comment_bp
     from app.routes.notif import notif_bp
+    from app.routes.search import search_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(users_bp)
@@ -54,6 +85,7 @@ def create_app():
     app.register_blueprint(public_bp)
     app.register_blueprint(comment_bp)
     app.register_blueprint(notif_bp)
+    app.register_blueprint(search_bp)
 
     from app import models  # make sure models are imported
     from flask_wtf.csrf import generate_csrf
@@ -61,5 +93,11 @@ def create_app():
     @app.context_processor
     def inject_csrf_token():
         return dict(csrf_token=generate_csrf)
+
+
+    # Register filter
+    app.jinja_env.filters['timeago'] = timeago
+    
+
 
     return app
