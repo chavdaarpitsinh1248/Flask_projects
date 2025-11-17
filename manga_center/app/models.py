@@ -21,6 +21,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(200), nullable=False)
     profile_pic = db.Column(db.String(200), nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
     @property
     def profile_pic_url(self):
