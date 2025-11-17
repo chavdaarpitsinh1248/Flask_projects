@@ -2,42 +2,135 @@
 {% block title %}Authors List - Admin Panel{% endblock %}
 
 {% block content %}
-<section class="authors-list">
-    <h2>All Authors</h2>
+<section class="authors-list container">
+
+    <h2 class="page-title">Authors</h2>
 
     {% if authors %}
-    <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Pen Name</th>
-                <th>Email</th>
-                <th>Joined On</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for author in authors %}
-            <tr>
-                <td>{{ author.id }}</td>
-                <td>{{ author.pen_name }}</td>
-                <td>{{ author.user.email }}</td>
-                <td>{{ author.joined_on.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>
-                    <a href="{{ url_for('admin.remove_author', author_id=author.id) }}"
-                        onclick="return confirm('Are you sure you want to remove this author?');">
-                        Remove Author
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-wrapper">
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Pen Name</th>
+                    <th>Email</th>
+                    <th>Joined On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for author in authors %}
+                <tr>
+                    <td>{{ author.id }}</td>
+                    <td>{{ author.pen_name }}</td>
+                    <td>{{ author.user.email }}</td>
+                    <td>{{ author.joined_on.strftime('%Y-%m-%d %H:%M') }}</td>
+
+                    <td>
+                        <a class="btn btn-danger btn-sm"
+                            href="{{ url_for('admin.remove_author', author_id=author.id) }}"
+                            onclick="return confirm('Are you sure you want to remove this author?');">
+                            Remove
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
     {% else %}
-    <p>No authors found.</p>
+    <p class="empty-text">No authors found.</p>
     {% endif %}
 
-    <br>
-    <a href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+    <div class="mt-3">
+        <a class="btn btn-secondary" href="{{ url_for('admin.dashboard') }}">⬅ Back to Dashboard</a>
+    </div>
+
 </section>
+
+<style>
+    /* Page Title */
+    .page-title {
+        font-size: 28px;
+        margin-bottom: 20px;
+        font-weight: 700;
+    }
+
+    /* Table Container */
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    /* Modern Table */
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .styled-table thead {
+        background: #0d6efd;
+        color: white;
+        font-weight: bold;
+    }
+
+    .styled-table th,
+    .styled-table td {
+        padding: 12px 15px;
+        text-align: left;
+    }
+
+    .styled-table tbody tr {
+        border-bottom: 1px solid #eee;
+    }
+
+    .styled-table tbody tr:nth-child(even) {
+        background: #f9f9f9;
+    }
+
+    .styled-table tbody tr:hover {
+        background: #f1f7ff;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        color: white;
+    }
+
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+    }
+
+    .btn-danger:hover {
+        background: #bb2d3b;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+    }
+
+    .btn-secondary:hover {
+        background: #5c636a;
+    }
+
+    .empty-text {
+        font-size: 16px;
+        color: #666;
+    }
+</style>
 {% endblock %}
