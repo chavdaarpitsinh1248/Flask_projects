@@ -2,29 +2,40 @@
 {% block title %}Add Chapter - {{ manga.title }}{% endblock %}
 
 {% block content %}
-<section class="add-chapter">
-    <h2>Add Chapter to {{ manga.title }}</h2>
+<section class="add-chapter container py-4">
+    <h2 class="mb-4">Add Chapter to "{{ manga.title }}"</h2>
 
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" class="p-4 shadow-sm rounded bg-light">
         {{ form.hidden_tag() }}
 
-        <div>
-            {{ form.title.label }}<br>
-            {{ form.title(size=50) }}
+        <!-- Chapter Title -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">
+                <i class="bi bi-type"></i> {{ form.title.label.text }}
+            </label>
+            {{ form.title(class="form-control", placeholder="Enter chapter title") }}
         </div>
 
-        <div>
-            {{ form.number.label }}<br>
-            {{ form.number() }}
+        <!-- Chapter Number -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">
+                <i class="bi bi-hash"></i> {{ form.number.label.text }}
+            </label>
+            {{ form.number(class="form-control", placeholder="Chapter number") }}
         </div>
 
-        <div>
-            {{ form.content.label }}<br>
-            {{ form.content(multiple=True) }}
+        <!-- Page Images -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">
+                <i class="bi bi-images"></i> {{ form.content.label.text }}
+            </label>
+            {{ form.content(class="form-control", multiple=True) }}
+            <small class="text-muted">You can upload multiple images for this chapter.</small>
         </div>
 
-        <div>
-            {{ form.submit(class="btn btn-primary") }}
+        <!-- Submit -->
+        <div class="text-end">
+            {{ form.submit(class="btn btn-primary px-4") }}
         </div>
     </form>
 </section>
