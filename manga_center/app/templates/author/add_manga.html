@@ -2,39 +2,67 @@
 {% block title %}Add Manga - Author Dashboard{% endblock %}
 
 {% block content %}
-<section class="add-manga">
-    <h2>Add New Manga</h2>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
 
-    <form method="post" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4">
 
-        <div>
-            {{ form.title.label }}<br>
-            {{ form.title(class="form-control") }}
-            {% for error in form.title.errors %}
-            <span class="text-danger">{{ error }}</span>
-            {% endfor %}
+                    <h2 class="text-center mb-4 fw-bold">
+                        <i class="bi bi-journal-plus"></i> Add New Manga
+                    </h2>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+
+                        <!-- Title -->
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label fw-semibold") }}
+                            {{ form.title(class="form-control form-control-lg") }}
+
+                            {% for error in form.title.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label fw-semibold") }}
+                            {{ form.description(class="form-control", rows="4") }}
+
+                            {% for error in form.description.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Cover -->
+                        <div class="mb-3">
+                            {{ form.cover_image.label(class="form-label fw-semibold") }}
+                            {{ form.cover_image(class="form-control") }}
+
+                            {% for error in form.cover_image.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            {{ form.submit(class="btn btn-primary btn-lg rounded-3 fw-semibold") }}
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
         </div>
+    </div>
+</div>
 
-        <div>
-            {{ form.description.label }}<br>
-            {{ form.description(class="form-control") }}
-            {% for error in form.description.errors %}
-            <span class="text-danger">{{ error }}</span>
-            {% endfor %}
-        </div>
+<style>
+    .add-manga .card {
+        border-radius: 1.2rem;
+    }
+</style>
 
-        <div>
-            {{ form.cover_image.label }}<br>
-            {{ form.cover_image(class="form-control") }}
-            {% for error in form.cover_image.errors %}
-            <span class="text-danger">{{ error }}</span>
-            {% endfor %}
-        </div>
-
-        <br>
-        {{ form.submit(class="btn btn-primary") }}
-
-    </form>
-</section>
 {% endblock %}
