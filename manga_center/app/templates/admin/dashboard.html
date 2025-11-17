@@ -3,17 +3,110 @@
 
 {% block content %}
 <section class="admin-dashboard">
-    <h2>Admin Dashborad</h2>
-    <p>Welcome, {{ current_user.username }} (Admin)</p>
 
-    <div class="admin-links">
-        <ul>
-            <li><a href="{{ url_for('admin.view_users') }}">View Users</a></li>
-            <li><a href="{{ url_for('admin.view_authors') }}">View Authors</a></li>
-            <li><a href="#">Manage Requests</a></li>
-            <li><a href="{{ url_for('admin.add_author') }}">Add New Author</a></li>
-        </ul>
+    <div class="dashboard-header">
+        <h2>Admin Dashboard</h2>
+        <p>Welcome, <strong>{{ current_user.username }}</strong> <span class="role-tag">ADMIN</span></p>
     </div>
+
+    <div class="dashboard-grid">
+        <a class="dash-card" href="{{ url_for('admin.view_users') }}">
+            <i class="bi bi-people-fill"></i>
+            <h3>Users</h3>
+            <p>View & manage all registered users</p>
+        </a>
+
+        <a class="dash-card" href="{{ url_for('admin.view_authors') }}">
+            <i class="bi bi-person-badge-fill"></i>
+            <h3>Authors</h3>
+            <p>Manage manga authors and permissions</p>
+        </a>
+
+        <a class="dash-card" href="#">
+            <i class="bi bi-envelope-exclamation-fill"></i>
+            <h3>Requests</h3>
+            <p>View author requests & submissions</p>
+        </a>
+
+        <a class="dash-card" href="{{ url_for('admin.add_author') }}">
+            <i class="bi bi-person-plus-fill"></i>
+            <h3>Add Author</h3>
+            <p>Add a new author manually</p>
+        </a>
+    </div>
+
 </section>
 
+<style>
+    /* Dashboard Container */
+    .admin-dashboard {
+        max-width: 1100px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    /* Header */
+    .dashboard-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .dashboard-header p {
+        margin-top: 5px;
+        font-size: 1.1rem;
+        color: #444;
+    }
+
+    .role-tag {
+        background: #e63946;
+        padding: 2px 8px;
+        font-size: 0.8rem;
+        color: white;
+        border-radius: 4px;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+        margin-top: 25px;
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    /* Cards */
+    .dash-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid #eee;
+        transition: 0.2s ease;
+        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .dash-card:hover {
+        border-color: #4f46e5;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-3px);
+    }
+
+    .dash-card i {
+        font-size: 2.3rem;
+        color: #4f46e5;
+        margin-bottom: 10px;
+    }
+
+    .dash-card h3 {
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .dash-card p {
+        color: #666;
+        font-size: 0.95rem;
+    }
+</style>
 {% endblock %}
