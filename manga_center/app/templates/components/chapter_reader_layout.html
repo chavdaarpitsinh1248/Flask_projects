@@ -65,6 +65,10 @@
 
     </div>
 
+    <!-- Scroll to Top Button -->
+    <button id="scrollTopBtn" class="scroll-top-btn">⬆</button>
+
+
 </section>
 
 
@@ -97,4 +101,47 @@
         font-size: 0.8em;
         opacity: 0.7;
     }
+
+    /* Floating Scroll-to-Top Button */
+    .scroll-top-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        width: 45px;
+        height: 45px;
+        border: none;
+        border-radius: 50%;
+        background: #1e90ff;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        display: none;
+        z-index: 9999;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        transition: opacity 0.3s ease;
+    }
+
+    .scroll-top-btn:hover {
+        background: #0b6ed1;
+    }
 </style>
+
+<script>
+    // Show / hide button on scroll
+    window.addEventListener("scroll", function () {
+        const btn = document.getElementById("scrollTopBtn");
+        if (window.scrollY > 300) {
+            btn.style.display = "block";
+        } else {
+            btn.style.display = "none";
+        }
+    });
+
+    // Smooth scroll to top
+    document.getElementById("scrollTopBtn").addEventListener("click", function () {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    });
+</script>
