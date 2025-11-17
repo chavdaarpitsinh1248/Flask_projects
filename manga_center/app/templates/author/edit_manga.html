@@ -2,60 +2,77 @@
 {% block title %}Edit Manga - Manga Center{% endblock %}
 
 {% block content %}
-<section class="edit-manga">
-    <h2>Edit Manga</h2>
+<div class="container my-4">
+    <div class="card shadow-sm p-4">
+        <h2 class="mb-4 text-center">✏️ Edit Manga</h2>
 
-    <form method="post" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
+        <form method="post" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
 
-        <div class="cover-preview">
-            {% if manga.cover_image %}
-            <label for="coverUpload">
-                <img src="{{ url_for('static', filename='uploads/manga_cover_images/' + manga.cover_image) }}"
-                    alt="Cover" class="cover-image">
-            </label>
-            {% else %}
-            <label for="coverUpload">
-                <img src="{{ url_for('static', filename='default_cover.jpg') }}" alt="Cover" class="cover-image">
-            </label>
-            {% endif %}
-            {{ form.cover_image(id="coverUpload", style="display:none;") }}
-            <p>Click image to select a new cover</p>
+            <!-- Cover Image Preview -->
+            <div class="text-center mb-4">
+                <label for="coverUpload" class="cover-wrapper">
+                    {% if manga.cover_image %}
+                    <img src="{{ url_for('static', filename='uploads/manga_cover_images/' + manga.cover_image) }}"
+                        class="cover-img" alt="Cover">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='default_cover.jpg') }}" class="cover-img" alt="Cover">
+                    {% endif %}
+                </label>
+                {{ form.cover_image(id="coverUpload", style="display:none;") }}
+                <p class="text-muted small mt-2">Click the cover to upload a new one</p>
+            </div>
+
+            <!-- Title -->
+            <div class="mb-3">
+                {{ form.title.label(class="form-label fw-semibold") }}
+                {{ form.title(class="form-control shadow-sm") }}
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+                {{ form.description.label(class="form-label fw-semibold") }}
+                {{ form.description(class="form-control shadow-sm", rows="4") }}
+            </div>
+
+            <!-- Save Changes -->
+            <div class="d-grid gap-2 mt-4">
+                {{ form.submit(class="btn btn-success btn-lg") }}
+            </div>
+        </form>
+
+        <!-- Delete Manga -->
+        <div class="text-center mt-4">
+            <form action="{{ url_for('author.delete_manga', manga_id=manga.id) }}" method="post">
+                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Delete this manga?');">
+                    🗑 Delete Manga
+                </button>
+            </form>
         </div>
-
-        <div>
-            {{ form.title.label }}<br>
-            {{ form.title(class="form-control") }}
-        </div>
-
-        <div>
-            {{ form.description.label }}<br>
-            {{ form.description(class="form-control", rows="4") }}
-        </div>
-        <br>
-        {{ form.submit(class="btn btn-success", value="Update Manga") }}
-    </form>
-
-    <form action="{{ url_for('author.delete_manga', manga_id=manga.id) }}" method="post" style="margin: 1rem;">
-        <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this manga?');">Delete</button>
-    </form>
-</section>
+    </div>
+</div>
 
 <style>
-    .cover-preview {
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .cover-preview img.cover-image {
-        width: 200px;
-        border-radius: 8px;
+    .cover-wrapper {
+        display: inline-block;
         cursor: pointer;
-        transition: 0.3s;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .cover-preview img.cover-image:hover {
-        opacity: 0.8;
+    .cover-img {
+        width: 220px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        transition: transform .25s ease-in-out, opacity .25s;
+    }
+
+    .cover-wrapper:hover .cover-img {
+        transform: scale(1.03);
+        opacity: 0.9;
+    }
+
+    .card {
+        border-radius: 12px;
     }
 </style>
 {% endblock %}
