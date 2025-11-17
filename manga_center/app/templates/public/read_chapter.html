@@ -2,46 +2,7 @@
 {% block title %}{{ manga.title }} - Chapter {{ chapter.number }}{% endblock %}
 
 {% block content %}
-<section class="chapter-reader" style="text-align: center;">
-
-    <h2>{{ manga.title }} - Chapter {{ chapter.number }}</h2>
-
-    <!-- Navigation Links (Top) -->
-    <div class="chapter-nav" style="margin-bottom: 20px;">
-        {% if prev_chapter %}
-        <a href="{{ url_for('public.read_chapter', chapter_id=prev_chapter.id) }}" style="margin-right: 20px;">⬅ Prev
-            Chapter</a>
-        {% endif %}
-        <a href="{{ url_for('public.view_manga', manga_id=manga.id) }}">Back to Manga</a>
-        {% if next_chapter %}
-        <a href="{{ url_for('public.read_chapter', chapter_id=next_chapter.id) }}" style="margin-left: 20px;">Next
-            Chapter ➡</a>
-        {% endif %}
-    </div>
-
-    <!-- Chapter Images -->
-    {% for img in image_urls %}
-    <img src="{{ img }}" alt="Page {{ loop.index }}" style="max-width: 90%; margin: 10px 0;">
-    {% endfor %}
-
-    <!-- Navigation Links (Bottom) -->
-    <div class="chapter-nav" style="margin-top: 20px;">
-        {% if prev_chapter %}
-        <a href="{{ url_for('public.read_chapter', chapter_id=prev_chapter.id) }}" style="margin-right: 20px;">⬅ Prev
-            Chapter</a>
-        {% endif %}
-        <a href="{{ url_for('public.view_manga', manga_id=manga.id) }}">Back to Manga</a>
-        {% if next_chapter %}
-        <a href="{{ url_for('public.read_chapter', chapter_id=next_chapter.id) }}" style="margin-left: 20px;">Next
-            Chapter ➡</a>
-        {% endif %}
-    </div>
-
-</section>
-
+{% include "components/chapter_reader_layout.html" %}
 {% include "components/comments_section.html" %}
-
-
-
 <script src="{{ url_for('static', filename='js/comments.js') }}"></script>
 {% endblock %}
