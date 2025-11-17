@@ -26,7 +26,7 @@ def restrict_to_admins():
         flash('Access denied! Admins only.', "danger")
         return redirect(url_for('main.home'))
 
-@admin_bp.route('/')
+@admin_bp.route('/dashboard')
 @login_required
 @admin_required
 def dashboard():
