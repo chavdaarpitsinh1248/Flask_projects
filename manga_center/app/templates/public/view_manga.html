@@ -9,7 +9,7 @@
         style="max-width: 200px; border-radius: 10px; margin-bottom: 10px;">
 
     {% if current_user.is_authenticated %}
-    <button class="bookmark-btn btn-warning" data-manga-id="{{ manga.id }}"
+    <button class="bookmark-btn btn btn-warning" data-manga-id="{{ manga.id }}"
         data-is-bookmarked="{{ 'true' if is_bookmarked else 'false' }}">{{ 'Remove Bookmark' if is_bookmarked else 'Add
         to Bookmarks' }}</button>
 
