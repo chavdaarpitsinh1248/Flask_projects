@@ -11,6 +11,16 @@ from datetime import datetime
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
+# association table for many-to-many between Manga and Genre
+manga_genre = db.Table(
+    'manga_genre',
+    db.Column('manga_id', db.Integer, db.ForeignKey('manga.id'), primary_key=True),
+    db.Column('genre_id', db.Integer, db.ForeignKey('genre.id'), primary_key=True)
+)
+
+
+
 # ---------------------------------
 #               USER
 # ---------------------------------
@@ -82,6 +92,13 @@ class Manga(db.Model):
     comments = db.relationship('Comment', backref='manga', lazy=True, cascade="all, delete-orphan")
     likes = db.relationship('Like', backref='manga', lazy=True, cascade="all, delete-orphan")
     bookmarked_by = db.relationship('Bookmark', backref='manga', lazy=True, cascade="all, delete-orphan")
+
+    # many-to-many genres
+    genres = db.relationship('Genre', secondary=manga_genre, backref=db.backref('mangas', lazy='dynamic'))
+    
+    @property
+    def genre_names(self):
+        return ", ".join([g.name for g in self.genres]) if self.genres else ""
 
     @property
     def latest_chapter_title(self):
@@ -200,3 +217,15 @@ class Notification(db.Model):
 
     def __repr__(self):
         return f"<Notification to:{self.user_id} message:{self.message[:25]}>"
+
+# ---------------------------------
+#               GENRE
+# ---------------------------------
+class Genre(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    slug = db.Column(db.String(100), unique=True, nullable=False)
+
+    def __repr__(self):
+        return f"<Genre {self.name}>"
+
