@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Manage Genres{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4">
+
+                    <h2 class="fw-bold mb-4 text-center">
+                        <i class="bi bi-tags"></i> Manage Genres
+                    </h2>
+
+                    <!-- Add Genre Form -->
+                    <form method="POST" class="mb-4 d-flex align-items-center">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <input type="text" name="name" class="form-control form-control-lg me-2"
+                            placeholder="Add new genre..." required>
+
+                        <button class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-circle"></i> Add
+                        </button>
+                    </form>
+
+                    <!-- Genre List -->
+                    <ul class="list-group">
+                        {% for g in genres %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ g.name }}
+                            <span class="badge bg-secondary">
+                                {{ g.mangas|length }} manga
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
