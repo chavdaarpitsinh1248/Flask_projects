@@ -190,5 +190,19 @@ def toggle_bookmark(manga_id):
 @users_bp.route('/my_library')
 @login_required
 def my_library():
-    bookmarks = Bookmark.query.filter_by(user_id=current_user.id).order_by(Bookmark.created_at.desc()).all()
-    return render_template('users/my_library.html', bookmarks=bookmarks)
+    page = request.args.get('page', 1, type=int)
+    per_page = 20  # 4 per row × 5 rows
+
+    pagination = Bookmark.query.filter_by(
+        user_id=current_user.id
+    ).order_by(
+        Bookmark.created_at.desc()
+    ).paginate(page=page, per_page=per_page, error_out=False)
+
+    bookmarks = pagination.items
+
+    return render_template(
+        'users/my_library.html',
+        bookmarks=bookmarks,
+        pagination=pagination
+    )
