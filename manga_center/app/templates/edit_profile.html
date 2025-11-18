@@ -2,34 +2,70 @@
 {% block title %}Edit Profile{% endblock %}
 
 {% block content %}
-<section class="edit-profile">
-    <h2>Edit Profile</h2>
-    <form method="post" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
+<section class="edit-profile container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
 
-        <div>
-            {{ form.username.label }}<br>
-            {{ form.username(class="form-control") }}
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+
+                    <h3 class="text-center mb-3">Edit Profile</h3>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+
+                        <!-- Username -->
+                        <div class="mb-3">
+                            {{ form.username.label(class="form-label") }}
+                            {{ form.username(class="form-control") }}
+                            {% for error in form.username.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            {{ form.password.label(class="form-label") }}
+                            {{ form.password(class="form-control") }}
+                            {% for error in form.password.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-3">
+                            {{ form.confirm_password.label(class="form-label") }}
+                            {{ form.confirm_password(class="form-control") }}
+                            {% for error in form.confirm_password.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Profile Picture -->
+                        <div class="mb-3">
+                            {{ form.profile_pic.label(class="form-label") }}
+                            {{ form.profile_pic(class="form-control") }}
+                            {% for error in form.profile_pic.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Submit -->
+                        <button type="submit" class="btn btn-primary w-100">
+                            Update Profile
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('users.profile') }}" class="text-decoration-none">
+                            ← Back to Profile
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
-
-        <div>
-            {{ form.password.label }}<br>
-            {{ form.password(class="form-control") }}
-        </div>
-
-        <div>
-            {{ form.confirm_password.label }}<br>
-            {{ form.confirm_password(class="form-control") }}
-        </div>
-
-        <div>
-            {{ form.profile_pic.label }}<br>
-            {{ form.profile_pic(class="form-control") }}
-        </div>
-
-        <button type="submit" class="btn btn-primary">Update</button>
-    </form>
-
-    <p><a href="{{ url_for('users.profile') }}">Back to Profile</a></p>
+    </div>
 </section>
 {% endblock %}
