@@ -2,34 +2,69 @@
 {% block title %}{{ author.pen_name or author.user.username }} - Author Profile{% endblock %}
 
 {% block content %}
-<section class="author-profile">
-    <h2>Author: {{ author.pen_name or author.user.username }}</h2>
-    <p><strong>Username:</strong> {{ author.user.username }}</p>
+<section class="author-profile" style="max-width: 1100px; margin: auto; padding: 20px;">
 
-    {% if author.pen_name %}
-    <p><strong>Pen Name:</strong> {{ author.pen_name }}</p>
-    {% endif %}
+    <!-- Author Header -->
+    <div style="margin-bottom: 25px; padding: 20px; border-radius: 10px;
+                background: #f8f8f8; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+        <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;">
+            {{ author.pen_name or author.user.username }}
+        </h2>
 
-    <h3>Published Manga</h3>
+        <p style="margin: 5px 0;"><strong>Username:</strong> {{ author.user.username }}</p>
+
+        {% if author.pen_name %}
+        <p style="margin: 5px 0;"><strong>Pen Name:</strong> {{ author.pen_name }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Manga List -->
+    <h3 style="margin-top: 20px; margin-bottom: 15px;">Published Manga</h3>
+
     {% if mangas %}
-    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 25px;
+    ">
         {% for manga in mangas %}
-        <div style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; width: 200px; text-align: center;">
-            <a href="{{ url_for('public.view_manga', manga_id=manga.id) }}">
+        <div style="
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            padding: 12px;
+            text-align: center;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        " onmouseover="this.style.transform='translateY(-6px)'" onmouseout="this.style.transform='translateY(0)'">
+
+            <a href="{{ url_for('public.view_manga', manga_id=manga.id) }}" style="text-decoration: none;">
                 <img src="{{ manga.cover_url }}" alt="{{ manga.title }}"
-                    style="max-width: 100%; height: auto; border-radius: 5px;">
+                    style="width: 100%; height: 250px; object-fit: cover; border-radius: 8px;">
+
+                <h4 style="margin-top: 10px; font-size: 18px; font-weight: 600; color: #333;">
+                    {{ manga.title }}
+                </h4>
             </a>
-            <h3>{{ manga.title }}</h3>
-            <p>{{ manga.description[:80] }}{% if manga.description|length > 80 %}...{% endif %}</p>
+
+            <p style="font-size: 14px; color: #555; margin-top: 5px;">
+                {{ manga.description[:80] }}{% if manga.description|length > 80 %}...{% endif %}
+            </p>
+
         </div>
         {% endfor %}
     </div>
+
     {% else %}
-    <p>This author hasn’t published any manga yet.</p>
+    <p style="margin-top: 10px; font-size: 16px;">This author hasn’t published any manga yet.</p>
     {% endif %}
 
-    <div style="margin-top: 15px;">
-        <a href="{{ url_for('public.index') }}">⬅ Back to Home</a>
+    <!-- Back Button -->
+    <div style="margin-top: 30px;">
+        <a href="{{ url_for('public.index') }}" style="color: #007bff; text-decoration: none; font-size: 16px;">
+            ⬅ Back to Home
+        </a>
     </div>
+
 </section>
 {% endblock %}
