@@ -94,6 +94,16 @@ def create_app():
     def inject_csrf_token():
         return dict(csrf_token=generate_csrf)
 
+    @app.context_processor
+    def inject_genres():
+        # import here to avoid circular import during app creation
+        from app.models import Genre
+        try:
+            genres = Genre.query.order_by(Genre.name).all()
+        except Exception:
+            genres = []
+        return dict(all_genres=genres)
+
 
     # Register filter
     app.jinja_env.filters['timeago'] = timeago
