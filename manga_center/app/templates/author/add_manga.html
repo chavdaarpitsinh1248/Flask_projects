@@ -36,6 +36,16 @@
                             {% endfor %}
                         </div>
 
+
+                        <!-- Genres multiselect -->
+
+                        <div class="mb-3">
+                            {{ form.genres.label(class="form-label fw-semibold") }}
+                            {{ form.genres(class="form-select", multiple=True) }}
+                            <div class="form-text">Hold Ctrl (Cmd) to select multiple genres (optional).</div>
+                        </div>
+
+
                         <!-- Cover -->
                         <div class="mb-3">
                             {{ form.cover_image.label(class="form-label fw-semibold") }}
