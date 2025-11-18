@@ -38,6 +38,25 @@
                             <a class="nav-link" href="{{ url_for('public.all_manga') }}">Browse</a>
                         </li>
 
+                        <!-- Genre -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="genreDropdown" role="button"
+                                data-bs-toggle="dropdown">
+                                Genres
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="genreDropdown">
+                                {% if all_genres %}
+                                {% for g in all_genres %}
+                                <li><a class="dropdown-item" href="{{ url_for('public.genre', genre_name=g.slug) }}">{{
+                                        g.name }}</a></li>
+                                {% endfor %}
+                                {% else %}
+                                <li><span class="dropdown-item text-muted">No genres</span></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+
+
                         {% if current_user.is_authenticated and current_user.is_admin %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Admin Panel</a>
@@ -111,7 +130,7 @@
                 </div>
             </div>
         </nav>
-        <!-- Genre / Category Bar -->
+        <!-- Genre / Category Bar 
         <div class="bg-secondary-subtle border-top border-bottom py-2">
             <div class="container d-flex flex-wrap justify-content-center gap-3 text-uppercase small fw-semibold">
                 {% set genres = [
@@ -126,7 +145,7 @@
                 </a>
                 {% endfor %}
             </div>
-        </div>
+        </div> -->
 
     </header>
 
