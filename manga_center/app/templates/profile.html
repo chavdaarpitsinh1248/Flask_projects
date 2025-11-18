@@ -2,29 +2,53 @@
 {% block title %}Profile - {{ user.username }}{% endblock %}
 
 {% block content %}
-<section class="profile-page">
-    <h2>Profile</h2>
+<section class="profile-page container py-4">
 
-    <a href="{{ url_for('users.edit_profile') }}">Edit Profile</a>
-    <img src="{{ user.profile_pic_url }}" alt="Profile Picture" style="width:150px; border-radius:50%;">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
 
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
+            <!-- Profile Card -->
+            <div class="card shadow-sm p-4 text-center">
 
+                <img src="{{ user.profile_pic_url }}" alt="Profile Picture" class="rounded-circle mb-3"
+                    style="width:140px; height:140px; object-fit:cover;">
 
-    {% if not user.author_profile %}
-    {% if user.author_request and user.author_request.status == 'pending' %}
-    <p><strong>Author Request Status:</strong> Pending</p>
-    {% elif user.author_request and user.author_request.status == 'Rejected' %}
-    <p><strong>Author Request Status:</strong> Rejected</p>
-    <a href="{{ url_for('users.request_author') }}">Reapply</a>
-    {% else %}
-    <a href="{{ url_for('users.request_author') }}" class="btn btn-seconary">Request Author Role</a>
-    {% endif %}
+                <h3 class="mb-1">{{ user.username }}</h3>
+                <p class="text-muted">{{ user.email }}</p>
 
-    {% else %}
-    <p><strong>Author Pen Name:</strong>{{ user.author_profile.pen_name }}</p>
-    {% endif %}
+                <a href="{{ url_for('users.edit_profile') }}" class="btn btn-outline-primary btn-sm mb-3">
+                    Edit Profile
+                </a>
+
+                <hr>
+
+                <!-- Author Section -->
+                {% if not user.author_profile %}
+
+                {% if user.author_request and user.author_request.status == 'pending' %}
+                <span class="badge bg-warning text-dark mb-2">Author Request Pending</span>
+
+                {% elif user.author_request and user.author_request.status == 'Rejected' %}
+                <span class="badge bg-danger mb-2">Author Request Rejected</span><br>
+                <a href="{{ url_for('users.request_author') }}" class="btn btn-secondary btn-sm mt-2">
+                    Reapply
+                </a>
+
+                {% else %}
+                <a href="{{ url_for('users.request_author') }}" class="btn btn-success btn-sm">
+                    Request Author Role
+                </a>
+                {% endif %}
+
+                {% else %}
+                <p class="mt-2">
+                    <strong>Pen Name:</strong> {{ user.author_profile.pen_name }}
+                </p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
 
 </section>
 {% endblock %}
