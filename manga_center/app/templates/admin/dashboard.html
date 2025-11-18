@@ -22,7 +22,7 @@
             <p>Manage manga authors and permissions</p>
         </a>
 
-        <a class="dash-card" href="#">
+        <a class="dash-card" href="{{ url_for('admin.author_requests') }}">
             <i class="bi bi-envelope-exclamation-fill"></i>
             <h3>Requests</h3>
             <p>View author requests & submissions</p>
@@ -33,6 +33,13 @@
             <h3>Add Author</h3>
             <p>Add a new author manually</p>
         </a>
+
+        <a class="dash-card" href="{{ url_for('admin.manage_genres') }}">
+
+            <h3>Manage Genres</h3>
+            <p>Add a new Genre manually</p>
+        </a>
+
     </div>
 
 </section>
