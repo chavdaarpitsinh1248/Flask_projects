@@ -19,11 +19,13 @@
 {% block scripts %}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        if (!notifContainer) return;
 
         const notifContainer = document.querySelector(".notifications-list");
+        if (!notifContainer) return;
 
-        // MARK READ button
+        // ----------------------
+        // MARK SINGLE NOTIFICATION READ
+        // ----------------------
         notifContainer.addEventListener("click", async (e) => {
             if (e.target.classList.contains("mark-read-btn")) {
                 const btn = e.target;
@@ -42,21 +44,23 @@
                     if (data.success) {
                         const card = btn.closest(".notification-card");
                         card.classList.remove("unread");
-                        btn.remove(); // remove the "mark read" button
-                    } else {
-                        alert(data.error || "Failed to mark as read.");
+                        btn.remove();
+                        updateNotifBadge(-1);
                     }
                 } catch (err) {
-                    console.error("Error:", err);
+                    console.error(err);
                 }
             }
         });
 
-        // DELETE button
+        // ----------------------
+        // DELETE NOTIFICATION
+        // ----------------------
         notifContainer.addEventListener("click", async (e) => {
             if (e.target.classList.contains("delete-btn")) {
                 const btn = e.target;
                 const notifId = btn.dataset.id;
+
                 if (!confirm("Delete this notification?")) return;
 
                 try {
@@ -70,19 +74,25 @@
 
                     const data = await res.json();
                     if (data.success) {
+
+                        // If unread, decrease badge
                         const card = btn.closest(".notification-card");
+                        if (card.classList.contains("unread")) {
+                            updateNotifBadge(-1);
+                        }
+
                         card.remove();
-                    } else {
-                        alert(data.error || "Failed to delete notification.");
                     }
                 } catch (err) {
-                    console.error("Error:", err);
+                    console.error(err);
                 }
             }
         });
 
-        // MARK ALL READ (optional button if you add it)
-        const markAllBtn = document.querySelector("#mark-all-read");
+        // ----------------------
+        // MARK ALL READ
+        // ----------------------
+        const markAllBtn = document.getElementById("mark-all-read");
         if (markAllBtn) {
             markAllBtn.addEventListener("click", async () => {
                 try {
@@ -90,17 +100,50 @@
                         method: "POST",
                         headers: { "X-Requested-With": "XMLHttpRequest" }
                     });
+
                     const data = await res.json();
                     if (data.success) {
-                        document.querySelectorAll(".notification-card.unread")
+                        document
+                            .querySelectorAll(".notification-card.unread")
                             .forEach(c => c.classList.remove("unread"));
-                        document.querySelectorAll(".mark-read-btn").forEach(btn => btn.remove());
+
+                        document
+                            .querySelectorAll(".mark-read-btn")
+                            .forEach(btn => btn.remove());
+
+                        // Reset badge count
+                        updateNotifBadge("clear");
                     }
                 } catch (err) {
-                    console.error("Error:", err);
+                    console.error(err);
                 }
             });
         }
+
+        // ----------------------
+        // UPDATE HEADER BADGE
+        // ----------------------
+        function updateNotifBadge(amount) {
+            const badge = document.getElementById("notif-count");
+            if (!badge) return;
+
+            if (amount === "clear") {
+                badge.textContent = "0";
+                badge.classList.add("d-none");
+                return;
+            }
+
+            let count = parseInt(badge.textContent);
+            count += amount;
+
+            if (count <= 0) {
+                badge.classList.add("d-none");
+            } else {
+                badge.classList.remove("d-none");
+                badge.textContent = count;
+            }
+        }
+
     });
 </script>
 {% endblock %}
