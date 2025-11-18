@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, abort, current_app, request
 from flask_login import current_user
-from app.models import Manga, Chapter, Bookmark, Comment
+from app.models import Manga, Chapter, Bookmark, Comment, Genre
 import os
 from app import db
 from app.forms.comment_form import CommentForm
@@ -156,14 +156,25 @@ def search():
     mangas = Manga.query.filter(Manga.title.ilike(f"%{q}%")).all() if q else []
     return render_template('public/search_results.html', mangas=mangas, query=q)
 
+#@public_bp.route('/genre/<genre_name>')
+#def genre(genre_name):
+#    page = request.args.get('page', 1, type=int)
+#    mangas = Manga.query.filter(Manga.genre.ilike(f'%{genre_name}%')) \
+#                        .order_by(Manga.id.desc()) \
+#                        .paginate(page=page, per_page=20)
+#    return render_template('public/genre.html',
+#                           genre=genre_name.capitalize(),
+#                           mangas=mangas.items,
+#                           pagination=mangas)
+
+
 @public_bp.route('/genre/<genre_name>')
 def genre(genre_name):
+    # accept slug or name — we assume slug
+    genre = Genre.query.filter_by(slug=genre_name).first_or_404()
     page = request.args.get('page', 1, type=int)
-    mangas = Manga.query.filter(Manga.genre.ilike(f'%{genre_name}%')) \
-                        .order_by(Manga.id.desc()) \
-                        .paginate(page=page, per_page=20)
-    return render_template('public/genre.html',
-                           genre=genre_name.capitalize(),
-                           mangas=mangas.items,
-                           pagination=mangas)
-
+    per_page = 20
+    mangas_query = genre.mangas.order_by(Manga.created_at.desc())
+    pagination = mangas_query.paginate(page=page, per_page=per_page, error_out=False)
+    mangas = pagination.items
+    return render_template('public/genre.html', mangas=mangas, pagination=pagination, genre=genre)
