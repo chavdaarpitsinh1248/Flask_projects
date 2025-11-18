@@ -35,6 +35,13 @@
                 {{ form.description(class="form-control shadow-sm", rows="4") }}
             </div>
 
+            <!-- Genres -->
+            <div class="mb-3">
+                {{ form.genres.label(class="form-label fw-semibold") }}
+                {{ form.genres(class="form-select shadow-sm", multiple=True) }}
+                <div class="form-text">Hold Ctrl (Cmd) to select multiple genres.</div>
+            </div>
+
             <!-- Save Changes -->
             <div class="d-grid gap-2 mt-4">
                 {{ form.submit(class="btn btn-success btn-lg") }}
