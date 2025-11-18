@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
-from app.models import Admin, User, Author, AuthorRequest
+from app.models import Admin, User, Author, AuthorRequest, Genre
 from app.forms.admin_forms import AddAuthorForm
 from werkzeug.security import generate_password_hash
+from slugify import slugify
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -168,3 +169,48 @@ def reject_author(request_id):
     db.session.commit()
     flash(f'Rejected author request from {req.user.username}.', 'warning')
     return redirect(url_for('admin.author_requests'))
+
+#
+#
+#
+# in admin blueprint
+@admin_bp.route('/genres', methods=['GET','POST'])
+@login_required
+def manage_genres():
+    if not current_user.is_admin:
+        abort(403)
+    if request.method == 'POST':
+        name = request.form.get('name','').strip()
+        if name:
+            slug = slugify(name)
+            if not Genre.query.filter_by(slug=slug).first():
+                g = Genre(name=name, slug=slug)
+                db.session.add(g)
+                db.session.commit()
+                flash('Genre added', 'success')
+            else:
+                flash('Genre already exists', 'warning')
+        return redirect(url_for('admin.manage_genres'))
+    genres = Genre.query.order_by(Genre.name).all()
+    return render_template('admin/genres.html', genres=genres)
+
+#
+#   DELETE GENRE
+#
+@admin_bp.route('/genres/delete/<int:genre_id>', methods=['POST'])
+@login_required
+def delete_genre(genre_id):
+    if not current_user.is_admin:
+        abort(403)
+
+    genre = Genre.query.get_or_404(genre_id)
+
+    # remove genre from any mangas that have it
+    for manga in genre.mangas:
+        manga.genres.remove(genre)
+
+    db.session.delete(genre)
+    db.session.commit()
+
+    flash("Genre deleted", "info")
+    return redirect(url_for('admin.manage_genres'))
