@@ -1,12 +1,13 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, send_from_directory, current_app
 from app.forms.manga_forms import MangaForm, ChapterForm
 from app.utils.file_utils import generate_manga_cover_filename
-from app.models import Manga, Chapter
+from app.models import Manga, Chapter, Genre
 from app.utils.helpers import ensure_manga_folder
 from app import db
 import os, zipfile
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
+from slugify import slugify
 
 author_bp = Blueprint('author', __name__, url_prefix='/author')
 
@@ -25,25 +26,41 @@ def dashboard():
 
 # Add Manga
 @author_bp.route('/add_manga', methods=['GET', 'POST'])
+@login_required
 def add_manga():
     form = MangaForm()
+
+    # Load all genres
+    genres = Genre.query.order_by(Genre.name).all()
+    print(genres)
+
+    # IMPORTANT: populate SelectMultipleField choices
+    form.genres.choices = [(g.id, g.name) for g in genres]
+
+    # Avoid the NoneType "in" error in template
+    form.genres.data = form.genres.data or []
 
     if form.validate_on_submit():
         title = form.title.data
         description = form.description.data
-        cover_image_file = form.cover_image.data 
+        cover_image_file = form.cover_image.data
+        selected_genre_ids = form.genres.data or []
 
-        # First create manga without cover image to get ID
         new_manga = Manga(
-            title = title,
-            description = description,
-            author_id = current_user.author_profile.id
+            title=title,
+            description=description,
+            author_id=current_user.author_profile.id
         )
 
-        db.session.add(new_manga)
-        db.session.commit()  # Generated Manga ID
+        # Assign selected genres
+        if selected_genre_ids:
+            selected_genres = Genre.query.filter(Genre.id.in_(selected_genre_ids)).all()
+            new_manga.genres = selected_genres
 
-        # Handle Cover upload if present
+        db.session.add(new_manga)
+        db.session.commit()
+
+        # Save cover image
         if cover_image_file:
             filename = generate_manga_cover_filename(
                 manga_title=title,
@@ -54,13 +71,15 @@ def add_manga():
             )
             save_path = os.path.join(current_app.config['COVER_UPLOAD_FOLDER'], filename)
             cover_image_file.save(save_path)
+
             new_manga.cover_image = filename
             db.session.commit()
 
         flash(f"Manga {title} Added Successfully!", "success")
         return redirect(url_for('author.dashboard'))
-    
-    return render_template('author/add_manga.html', form=form)
+
+    return render_template('author/add_manga.html', form=form, genres=genres)
+
 
 # View all Manga from author
 @author_bp.route('/my_manga')
@@ -77,13 +96,20 @@ def edit_manga(manga_id):
     if manga.author_id != current_user.author_profile.id:
         flash('Access denied!', "danger")
         return redirect(url_for('author.my_manga'))
-    
+
     form = MangaForm()
+
+    # Always load choices
+    form.genres.choices = [(g.id, g.name) for g in Genre.query.order_by(Genre.name).all()]
 
     if form.validate_on_submit():
         manga.title = form.title.data
         manga.description = form.description.data
 
+        # Update genres many-to-many
+        manga.genres = Genre.query.filter(Genre.id.in_(form.genres.data)).all()
+
+        # Cover image update
         if form.cover_image.data:
             file = form.cover_image.data
             filename = generate_manga_cover_filename(
@@ -100,11 +126,14 @@ def edit_manga(manga_id):
         db.session.commit()
         flash('Manga updated successfully!', "success")
         return redirect(url_for('author.my_manga'))
-    
-    #Pre-fill form with existing data
+
+    # Prefill on GET
     elif request.method == 'GET':
         form.title.data = manga.title
         form.description.data = manga.description
+
+        # Pre-select genres for this manga
+        form.genres.data = [g.id for g in manga.genres]
 
     return render_template('author/edit_manga.html', form=form, manga=manga)
 
