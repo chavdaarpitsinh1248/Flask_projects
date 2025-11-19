@@ -21,6 +21,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
+    summary = db.Column(db.String(512))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     likes = db.relationship('Like', backref='post', lazy='dynamic')
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
