@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Edit Expense</h2>
+
+<form method="post">
+    {{ form.hidden_tag() }}
+
+    <p>{{ form.amount.label }}<br>{{ form.amount() }}</p>
+    <p>{{ form.category.label }}<br>{{ form.category() }}</p>
+    <p>{{ form.date.label }}<br>{{ form.date() }}</p>
+    <p>{{ form.note.label }}<br>{{ form.note(rows=3) }}</p>
+
+    <p>{{ form.submit() }}</p>
+</form>
+
+<a href="{{ url_for('expense.list_expenses') }}">Back</a>
+{% endblock %}
