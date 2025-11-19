@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
+from flask import Blueprint, render_template, redirect, url_for, flash, request, abort, current_app, jsonify
 from flask_login import login_required, current_user
 from models import Post, Comment, Like
 from forms import PostForm, CommentForm
 from extensions import db
 from utils.notifications import create_notification
+from utils.ai_helpers import generate_title, generate_summary
 
 post_bp = Blueprint('post', __name__)
 
@@ -11,21 +12,58 @@ post_bp = Blueprint('post', __name__)
 # Post CRUD Routes
 # ------------------
 
+#//////////////////////////////////////////////////////////////////////////////
+
+# ------------------
+#   CREATE POST
+# ------------------
+
 @post_bp.route('/create', methods=['GET', 'POST'])
 @login_required
 def create_post():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data, content=form.content.data, user_id=current_user.id)
+        content = form.content.data or ""
+        user_title = (form.title.data or "").strip()
+
+        # Default values (used if AI fails)
+        title_to_use = user_title or "Untitled post"
+        summary_to_use = ""
+
+        # If user left title empty, try to generate one
+        if not user_title:
+            try:
+                title_to_use = generate_title(content)
+            except Exception as e:
+                # Log and fallback
+                current_app.logger.exception("AI title generation failed:")
+                # keep the default 'Untitled post' or you could set to first 60 chars:
+                if content:
+                    title_to_use = (content.strip().replace("\n", " ")[:60] + "...")
+
+        # Generate a summary (you can skip this if you prefer)
+        try:
+            summary_to_use = generate_summary(content)
+        except Exception as e:
+            current_app.logger.exception("AI summary generation failed:")
+            # fallback: use first 120 chars as a simple summary
+            summary_to_use = (content.strip().replace("\n", " ")[:120] + "...") if content else ""
+
+        # Create and save the Post (includes summary)
+        post = Post(title=title_to_use, content=content, summary=summary_to_use, user_id=current_user.id)
         db.session.add(post)
         db.session.commit()
+
         flash('Post created successfully!', 'success')
         return redirect(url_for('main.index'))
-    return render_template('create_post.html', form=form, edit=False)
 
+    return render_template('create_post.html', form=form, edit=False)
+#
+#
+#    
 
 @post_bp.route('/post/<int:post_id>')
-@login_required  # or optional, depending on your setup
+@login_required  
 def view_post(post_id):
     post = Post.query.get_or_404(post_id)
     comments = post.comments.order_by(Comment.created_at.asc()).all()
@@ -155,3 +193,57 @@ def like_post(post_id):
     db.session.commit()
     flash("Post liked!", "success")
     return redirect(url_for('post.view_post', post_id=post.id))
+
+#
+#
+#
+@post_bp.route('/_generate_gemini_title', methods=['POST'])
+@login_required
+def generate_gemini_title():
+    from utils.gemini_client import client
+    data = request.get_json()
+    content = data.get("content", "")
+
+    if not content.strip():
+        return jsonify({"error": "Content is empty"}), 400
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=f"Generate exactly ONE short, attractive blog title for "
+                "the following content. Do NOT list multiple titles. "
+                "Do NOT explain anything. Return ONLY the title.\n\n"
+                f"{content}"
+        )
+
+        title = response.text.strip()
+        return jsonify({"title": title})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+#
+#
+#
+@post_bp.route('/_generate_gemini_summary', methods=['POST'])
+@login_required
+def generate_gemini_summary():
+    from utils.gemini_client import client
+    data = request.get_json()
+    content = data.get("content", "")
+
+    if not content.strip():
+        return jsonify({"error": "Content is empty"}), 400
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=f"Write a concise summary for this blog post:\n\n{content}"
+        )
+
+        summary = response.text.strip()
+        return jsonify({"summary": summary})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
