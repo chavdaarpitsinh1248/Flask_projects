@@ -8,6 +8,12 @@ from routes.ajax_routes import ajax_bp
 from routes.search_routes import search_bp
 from routes.main_routes import main_bp
 from routes.notif_routes import notif_bp
+#from routes.ai_routes import ai_bp
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 
 def create_app():
     app = Flask(__name__)
@@ -21,7 +27,7 @@ def create_app():
     login_manager.init_app(app)
     moment.init_app(app)
     migrate.init_app(app, db)
-
+    
     
 
     from models import User, Comment, Post
@@ -39,6 +45,7 @@ def create_app():
     app.register_blueprint(search_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(notif_bp)
+    #app.register_blueprint(ai_bp)
 
 
     #Context Processors
