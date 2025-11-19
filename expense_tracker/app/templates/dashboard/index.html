@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Dashboard</h2>
+
+<div>
+    <p><strong>Total Spent:</strong> {{ total_spent }}</p>
+    <p><strong>Today's Spend:</strong> {{ today_spent }}</p>
+    <p><strong>This Month:</strong> {{ monthly_spent }}</p>
+</div>
+
+<hr>
+
+<h3>Category Breakdown</h3>
+<canvas id="categoryChart"></canvas>
+
+<hr>
+
+<h3>Daily Spending</h3>
+<canvas id="dailyChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // ---------- Pie Chart --------------
+    fetch("/dashboard/api/category-data")
+        .then(res => res.json())
+        .then(data => {
+            new Chart(document.getElementById("categoryChart"), {
+                type: "pie",
+                data: {
+                    labels: data.labels,
+                    datasets: [{ data: data.values }]
+                }
+            });
+        });
+
+    // ---------- Line Chart ---------------
+    fetch("/dashboard/api/weekly-data")
+        .then(res => res.json())
+        .then(data => {
+            new Chart(document.getElementById("dailyChart"), {
+                type: "line",
+                data: {
+                    labels: data.labels,
+                    datasets: [{ data: data.values }]
+                }
+            });
+        });
+</script>
+
+{% endblock %}
