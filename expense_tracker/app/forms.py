@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, FloatField, SelectField, DateField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 
 # -----------------------------
@@ -24,3 +24,25 @@ class LoginForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Login")
+
+
+# -----------------------------
+#   Expense Form
+# -----------------------------
+class ExpenseForm(FlaskForm):
+    amount = FloatField("Amount", validators=[DataRequired()])
+    category = SelectField(
+        "Category",
+        choices=[
+            ("food", "Food"),
+            ("travel", "Travel"),
+            ("shopping", "Shopping"),
+            ("bills", "Bills"),
+            ("health", "Health"),
+            ("other", "Other"),
+        ],
+        validators=[DataRequired()],
+    )
+    date = DateField("Date", validators=[DataRequired()])
+    note = TextAreaField("Note")
+    submit = SubmitField("Save")
