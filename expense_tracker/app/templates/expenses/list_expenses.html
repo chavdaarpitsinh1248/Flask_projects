@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Your Expenses</h2>
+
+<form method="get">
+    <label>Category:</label>
+    <select name="category">
+        <option value="">All</option>
+        <option value="food">Food</option>
+        <option value="travel">Travel</option>
+        <option value="shopping">Shopping</option>
+        <option value="bills">Bills</option>
+        <option value="health">Health</option>
+        <option value="other">Other</option>
+    </select>
+
+    <label>Start:</label>
+    <input type="date" name="start">
+
+    <label>End:</label>
+    <input type="date" name="end">
+
+    <button type="submit">Filter</button>
+</form>
+
+<a href="{{ url_for('expense.add_expense') }}">Add Expense</a>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+        <th>Date</th>
+        <th>Amount</th>
+        <th>Category</th>
+        <th>Note</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for e in expenses %}
+    <tr>
+        <td>{{ e.date }}</td>
+        <td>{{ e.amount }}</td>
+        <td>{{ e.category }}</td>
+        <td>{{ e.note }}</td>
+        <td>
+            <a href="{{ url_for('expense.edit_expense', expense_id=e.id) }}">Edit</a>
+            <form method="post" action="{{ url_for('expense.delete_expense', expense_id=e.id ) }}"
+                style="display:inline;">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
