@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{% block title %}Expense Tracker{% endblock %}</title>
+
+    <style>
+        /* Minimal styling so layout looks clean even before Bootstrap/Tailwind */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #fafafa;
+        }
+        .navbar {
+            background: #333;
+            padding: 12px 20px;
+            color: #fff;
+        }
+        .navbar a {
+            color: #fff;
+            margin-right: 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 950px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <a href="{{ url_for('dashboard.dashboard_home') }}">Dashboard</a>
+        <a href="{{ url_for('expenses.add_expense') }}">Add Expense</a>
+
+        {% if current_user.is_authenticated %}
+            <span style="float:right;">Logged in as {{ current_user.username }}</span>
+        {% endif %}
+    </div>
+
+    <!-- Page container -->
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
