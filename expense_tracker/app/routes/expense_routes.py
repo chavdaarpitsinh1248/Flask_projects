@@ -53,7 +53,7 @@ def add_expense():
         db.session.commit()
 
         flash("Expense added!", "success")
-        return redirect(url_for("expense.list_expenses"))
+        return redirect(url_for("expenses.list_expenses"))
 
     return render_template("expenses/add_expense.html", form=form)
 
@@ -100,5 +100,5 @@ def delete_expense(expense_id):
     db.session.delete(expense)
     db.session.commit()
 
-    flask("Expense deleted!", "success")
-    return redirect(url_for("expense.list_expenses"))
+    flash("Expense deleted!", "success")
+    return redirect(url_for("expenses.list_expenses"))
