@@ -52,7 +52,7 @@ def dashboard_home():
 # -----------------------------------------
 #   API: Category Breakdown (Pie Chart)
 # -----------------------------------------
-@dashboard_bp.route("api/category-data")
+@dashboard_bp.route("/api/category-data")
 @login_required
 def category_data():
     rows = (
