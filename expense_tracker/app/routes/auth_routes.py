@@ -40,7 +40,7 @@ def signup():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("expense.list_expenses"))
+        return redirect(url_for("expenses.list_expenses"))
     
     form = LoginForm()
     
@@ -49,9 +49,9 @@ def login():
 
         if user and user.verify_password(form.password.data):
             login_user(user)
-            return redirect(url_for(expense.list_expenses))
+            return redirect(url_for("expenses.list_expenses"))
 
-        flash("Incalid credentials. Try again.", "danger")
+        flash("Invalid credentials. Try again.", "danger")
     
     return render_template("auth/login.html", form=form)
 
