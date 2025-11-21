@@ -8,46 +8,56 @@
 
     <div class="col-md-3">
         <div class="card text-bg-primary mb-3">
-            <div class="card-body">
-                <h5>Total Users</h5>
-                <h2>{{ total_users }}</h2>
-            </div>
+            <a href="{{ url_for('admin.users') }}" class="btn mt-3">
+                <div class="card-body">
+                    <h5>Total Users</h5>
+                    <h2>{{ total_users }}</h2>
+                </div>
+            </a>
         </div>
     </div>
     
     <div class="col-md-3">
         <div class="card text-bg-primary mb-3">
-            <div class="card-body">
-                <h5>Customers</h5>
-                <h2>{{ customers }}</h2>
-            </div>
+            <a href="{{ url_for('admin.users_by_role', role='customer') }}" class="btn btn-primary">
+                <div class="card-body">
+                    <h5>Customers</h5>
+                    <h2>{{ customers }}</h2>
+                </div>
+            </a>
         </div>
     </div>
 
     <div class="col-md-3">
         <div class="card text-bg-primary mb-3">
-            <div class="card-body">
-                <h5>Suppliers</h5>
-                <h2>{{ suppliers }}</h2>
-            </div>
+            <a href="{{ url_for('admin.users_by_role', role='supplier') }}" class="btn btn-warning">
+                <div class="card-body">
+                    <h5>Suppliers</h5>
+                    <h2>{{ suppliers }}</h2>
+                </div>
+            </a>
         </div>
     </div>
     
     <div class="col-md-3">
         <div class="card text-bg-primary mb-3">
-            <div class="card-body">
-                <h5>Staff</h5>
-                <h2>{{ staff }}</h2>
-            </div>
+            <a href="{{ url_for('admin.users_by_role', role='in_staff') }}" class="btn btn-info">
+                <div class="card-body">
+                    <h5>Staff</h5>
+                    <h2>{{ staff }}</h2>
+                </div>
+            </a>
         </div>
     </div>
     
     <div class="col-md-3">
         <div class="card text-bg-primary mb-3">
-            <div class="card-body">
-                <h5>Delivery Drivers</h5>
-                <h2>{{ drivers }}</h2>
-            </div>
+            <a href="{{ url_for('admin.users_by_role', role='driver') }}" class="btn btn-dark">
+                <div class="card-body">
+                    <h5>Delivery Drivers</h5>
+                    <h2>{{ drivers }}</h2>
+                </div>
+            </a>
         </div>
     </div>
 
