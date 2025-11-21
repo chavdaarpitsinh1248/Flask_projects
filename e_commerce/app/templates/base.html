@@ -25,7 +25,7 @@
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a></li>
                     {% endif %}
                     {% if current_user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="#">Welcome, {{ current_user.username }}</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">Welcome, {{ current_user.name }}</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
 
                     {% else %}
