@@ -18,7 +18,14 @@ def create_app():
         return User.query.get(int(user_id))
 
     
-    # register bluprints here
+    # register blueprints here
+    from app.main import main_bp
+    from app.auth import auth_bp
+    from app.admin import admin_bp
+
+    app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(admin_bp)
 
 
     return app
