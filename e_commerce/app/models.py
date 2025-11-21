@@ -27,7 +27,7 @@ class User(db.Model, UserMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True, nullable=False)
-    password_hash = db.Column(db.string(256), nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
     name = db.Column(db.String(120), nullable=False)
     role = db.Column(db.Enum(RoleEnum), default=RoleEnum.CUSTOMER, nullable=False)
 
@@ -109,10 +109,10 @@ class Address(db.Model):
 class Order(db.Model):
     __tablename__ = "order"
 
-    id = db.Column(db.Integer. primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
 
     customer_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    address_id = db.Column(db.Integer, db.Foreign("address.id"), nullable=False)
+    address_id = db.Column(db.Integer, db.ForeignKey("address.id"), nullable=False)
 
     # delivery assignment (for drivers)
     driver_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
@@ -125,7 +125,7 @@ class Order(db.Model):
     )
 
     # price
-    total_amount = db.Column(db.Numberic(10, 2), nullable=False)
+    total_amount = db.Column(db.Numeric(10, 2), nullable=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     paid_at = db.Column(db.DateTime, nullable=True)
@@ -155,7 +155,7 @@ class OrderItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
 
     quantity = db.Column(db.Integer,default=1)
-    unit_price = db.Column(db.Numberic(10, 2), nullable=False)  # price at purchase time
+    unit_price = db.Column(db.Numeric(10, 2), nullable=False)  # price at purchase time
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
