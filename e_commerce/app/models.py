@@ -37,10 +37,25 @@ class User(db.Model, UserMixin):
     products = db.relationship("Product", backref="supplier", lazy="dynamic")
 
     # Customer -> orders
-    orders = db.relationship("Order", backref="customer", lazy="dynamic")
+    orders = db.relationship(
+        "Order",
+        foreign_keys="Order.customer_id",
+        backref="customer",
+        lazy="dynamic"
+    )
+
+    # Driver -> assigned to deliver orders
+    driver_orders = db.relationship(
+        "Order",
+        foreign_keys="Order.driver_id",
+        back_populates="driver",
+        lazy="dynamic"
+    )
+
 
     def __repr__(self):
         return f"<User {self.id} {self.email} {self.role}>"
+
 
 
 # ---------------------------------------------------
@@ -138,7 +153,12 @@ class Order(db.Model):
     address = db.relationship("Address")
 
     # driver relation
-    driver = db.relationship("User", foreign_keys=[driver_id])
+    driver = db.relationship(
+        "User",
+        foreign_keys=[driver_id],
+        back_populates="driver_orders"
+    )
+
 
     def __repr__(self):
         return f"<Order {self.id} Customer={self.customer_id} Status={self.status}>"
