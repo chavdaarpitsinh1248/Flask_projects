@@ -23,7 +23,7 @@ def dashboard():
 @supplier_bp.route('/add', methods=["GET", "POST"])
 @login_required
 @supplier_required
-def app_product():
+def add_product():
     form = AddProductForm()
     if form.validate_on_submit():
         product = Product(
