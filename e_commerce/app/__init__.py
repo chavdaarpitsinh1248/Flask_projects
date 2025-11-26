@@ -22,10 +22,12 @@ def create_app():
     from app.main import main_bp
     from app.auth import auth_bp
     from app.admin import admin_bp
+    from app.supplier import supplier_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(supplier_bp)
 
 
     return app
