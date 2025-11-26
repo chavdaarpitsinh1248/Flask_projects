@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.extensions import db
-from app.models import Product
+from app.models import Product, User
 from . import supplier_bp
 from .utils import supplier_required
 from .forms import AddProductForm
@@ -11,8 +11,8 @@ from .forms import AddProductForm
 @supplier_required
 def dashboard():
     total_products = Product.query.filter_by(supplier_id=current_user.id).count()
-    total_stock = db.session.query(db.func.sum(Product.stock)).filter_by(Product.supplier_id == current_user.id).scalar() or 0
-    total_sales = db.session.query(db.func.sum(Product.sold)).filter_by(Product.supplier_id == current_user.id).scalar() or 0
+    total_stock = db.session.query(db.func.sum(Product.stock)).filter(Product.supplier_id == current_user.id).scalar() or 0
+    total_sales = db.session.query(db.func.sum(Product.sold)).filter(Product.supplier_id == current_user.id).scalar() or 0
 
     return render_template('supplier/dashboard.html',
                             total_products=total_products,
