@@ -24,6 +24,9 @@
                     {% if current_user.is_authenticated and current_user.role == 'admin' %}
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a></li>
                     {% endif %}
+                    {% if current_user.is_authenticated and current_user.role == 'supplier' %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('supplier.dashboard') }}">Supplier Dashboard</a></li>
+                    {% endif %}
                     {% if current_user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">Welcome, {{ current_user.name }}</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
