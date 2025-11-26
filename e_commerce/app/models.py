@@ -65,12 +65,12 @@ class Product(db.Model):
     __tablename__ = "product"
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Numeric(10, 2), nullable=False)
     discount_percent = db.Column(db.Integer, default=0)
     stock = db.Column(db.Integer, default=0)
-
+    sold = db.Column(db.Integer, default=0)
     supplier_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
